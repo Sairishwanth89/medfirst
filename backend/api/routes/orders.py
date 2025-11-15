@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from core.database import get_db
 from core.security import get_current_user
-from models.database import Order, OrderItem, Medicine, User, OrderStatus
-from api.schemas import OrderCreate, OrderResponse
+from models.database import Order, OrderItem, Medicine, User, OrderStatus, Pharmacy
+from api.schemas import OrderCreate, OrderResponse, OrderStatusUpdate
 from tasks.celery_app import process_order
 
 router = APIRouter()
@@ -188,5 +188,67 @@ async def cancel_order(
     order.status = OrderStatus.CANCELLED
     db.commit()
     db.refresh(order)
+    
+    return order
+
+@router.get("/pharmacy/me", response_model=List[OrderResponse])
+async def get_pharmacy_orders(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all incoming orders for the currently authenticated pharmacy.
+    """
+    # 1. Check role
+    if current_user.role not in [UserRole.PHARMACY, UserRole.ADMIN]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only pharmacy owners can view this."
+        )
+    
+    # 2. Find pharmacy
+    pharmacy = db.query(Pharmacy).filter(Pharmacy.owner_id == current_user.id).first()
+    if not pharmacy:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pharmacy profile not found."
+        )
+        
+    # 3. Get all orders for this pharmacy
+    orders = db.query(Order).filter(Order.pharmacy_id == pharmacy.id).order_by(Order.created_at.desc()).all()
+    return orders
+
+
+@router.patch("/pharmacy/{order_id}", response_model=OrderResponse)
+async def update_order_status_by_pharmacy(
+    order_id: int,
+    status_update: OrderStatusUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Allows a pharmacy to update the status of an order.
+    """
+    # 1. Find the order
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+
+    # 2. Check ownership
+    pharmacy = db.query(Pharmacy).filter(Pharmacy.owner_id == current_user.id).first()
+    if not pharmacy or order.pharmacy_id != pharmacy.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to update this order."
+        )
+
+    # 3. Update status
+    order.status = status_update.status
+    db.commit()
+    db.refresh(order)
+    
+    # In a real system, you would also:
+    # - Send a notification to the user
+    # - Publish an event
     
     return order

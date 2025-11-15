@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - MediFind</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1><a href="index.html" style="color:white; text-decoration: none;">🏥 MediFind</a></h1>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Search</a>
+                    <a href="orders.html" class="active">My Orders</a>
+                    <a href="pharmacy.html">Pharmacy Dashboard</a>
+                    <a href="#" id="auth-link">Login</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero" style="padding: 2rem 0;">
+            <h2>My Order History</h2>
+            <p>Track the status of your recent orders</p>
+        </section>
+        
+        <div id="alert-box" style="display: none;"></div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Fetching your orders...</p>
+        </div>
+        
+        <section id="orders-container" class="dashboard-card" style="display: none;">
+            <h3>Your Orders</h3>
+            <table id="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Total Amount</th>
+                        <th>Items</th>
+                    </tr>
+                </thead>
+                <tbody id="orders-table-body">
+                    </tbody>
+            </table>
+            
+            <p id="no-orders-message" style="display: none; text-align: center; padding: 2rem;">
+                You have not placed any orders yet.
+            </p>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 MediFind - Medicine Availability System</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/orders.js"></script>
+</body>
+</html>

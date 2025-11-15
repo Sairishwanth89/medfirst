@@ -1,6 +1,7 @@
 from celery import Celery
 from core.config import settings
 import logging
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +24,14 @@ celery_app.conf.update(
     task_soft_time_limit=240,  # 4 minutes
 )
 
+celery_app.conf.beat_schedule = {
+    'retrain-ml-model-weekly': {
+        'task': 'tasks.retrain_prediction_model',
+        'schedule': 3600 * 24 * 7, # Run every 7 days (in seconds)
+        # Or use crontab: 'schedule': crontab(hour=1, minute=0, day_of_week='sun')
+        # (you would need: from celery.schedules import crontab)
+    },
+}
 
 @celery_app.task(name="tasks.process_order")
 def process_order(order_id: int):
@@ -144,3 +153,36 @@ def cleanup_expired_cache():
     logger.info("Cleaning up expired cache entries")
     # Redis handles TTL automatically, but this can be used for custom cleanup
     return True
+
+
+# --- NEW: ML TRAINING TASK ---
+@celery_app.task(name="tasks.retrain_prediction_model")
+def retrain_prediction_model():
+    """
+    Periodically retrain the ML model using the latest data.
+    """
+    logger.info("Starting ML model re-training task...")
+    try:
+        # We run the training script.
+        # It's in the /app/training/ directory inside the container.
+        # Note: The 'backend' Docker image needs to have the 'training'
+        # folder copied into it for this to work.
+        # A better way is to make the training script a callable function.
+        # For simplicity, we'll assume it's copied.
+        
+        # A simple way to run the script:
+        # Note: This assumes the training script is in /app/training/
+        subprocess.run(
+            ["python", "training/train_model.py"],
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        logger.info("ML model re-training completed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"ML training script failed: {e.stderr}")
+        return False
+    except Exception as e:
+        logger.error(f"Error running training task: {e}")
+        return False

@@ -207,3 +207,30 @@ async def delete_medicine(
     redis_client.delete_medicine_stock(medicine_id)
     
     return None
+
+@router.get("/me", response_model=List[MedicineResponse])
+async def get_my_stock(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get all medicine stock for the currently authenticated pharmacy owner.
+    """
+    # 1. Check user role
+    if current_user.role != UserRole.PHARMACY:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to view this resource."
+        )
+
+    # 2. Find the user's pharmacy
+    pharmacy = db.query(Pharmacy).filter(Pharmacy.owner_id == current_user.id).first()
+    if not pharmacy:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Pharmacy profile not found."
+        )
+    
+    # 3. Return all medicines for that pharmacy
+    medicines = db.query(Medicine).filter(Medicine.pharmacy_id == pharmacy.id).all()
+    return medicines

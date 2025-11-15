@@ -275,21 +275,34 @@ function showLoading(show) {
     }
 }
 
-// Show alert message
-function showAlert(message, type) {
+//
+// REPLACEMENT for showAlert function in frontend/js/app.js
+//
+function showAlert(message, type, container = null) {
     // Create alert element
     const alert = document.createElement('div');
     alert.className = `alert alert-${type}`;
     alert.textContent = message;
     
-    // Insert at top of main content
-    const main = document.querySelector('main.container');
-    if (main) {
-        main.insertBefore(alert, main.firstChild);
+    // Default to the main container if no specific one is provided
+    if (!container) {
+        container = document.querySelector('main.container');
+    }
+
+    // Clear previous alerts in this container and add new one
+    if (container) {
+        container.innerHTML = ''; // Clear old alerts
+        container.appendChild(alert);
+        container.style.display = 'block';
         
         // Auto-remove after 5 seconds
         setTimeout(() => {
-            alert.remove();
+            if (alert) {
+                alert.remove();
+            }
+            if (container.innerHTML === '') {
+                 container.style.display = 'none';
+            }
         }, 5000);
     }
 }

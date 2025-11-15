@@ -1,3 +1,6 @@
+#
+# FILENAME: backend/api/schemas.py
+#
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
 from datetime import datetime
@@ -84,6 +87,16 @@ class PharmacyCreate(PharmacyBase):
     pass
 
 
+class PharmacyUpdate(BaseModel):
+    name: Optional[str] = None
+    address: Optional[str] = None
+    city: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    phone: Optional[str] = None
+    is_24_hours: Optional[bool] = None
+
+
 class PharmacyResponse(PharmacyBase):
     id: int
     owner_id: int
@@ -146,3 +159,25 @@ class MedicineSearchResult(BaseModel):
     medicine: MedicineResponse
     pharmacy: PharmacyResponse
     distance: Optional[float] = None
+
+# --- NEW ANALYTICS SCHEMAS ---
+
+class MostSoldMedicineResponse(BaseModel):
+    medicine_id: int
+    medicine_name: str
+    total_sold: int
+    
+    class Config:
+        from_attributes = True
+
+
+class BusiestPharmacyResponse(BaseModel):
+    pharmacy_id: int
+    pharmacy_name: str
+    total_orders: int
+    
+    class Config:
+        from_attributes = True
+
+class OrderStatusUpdate(BaseModel):
+    status: OrderStatus

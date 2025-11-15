@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - MediFind</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1><a href="index.html" style="color:white; text-decoration: none;">🏥 MediFind</a></h1>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html">Search</a>
+                    <a href="orders.html">My Orders</a>
+                    <a href="pharmacy.html">Pharmacy Dashboard</a>
+                    <a href="login.html">Login</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="auth-section">
+            <div class="dashboard-card" style="max-width: 600px; margin: 2rem auto;">
+                <h3>Create an Account</h3>
+                
+                <div id="alert-box" style="display: none;"></div>
+
+                <form id="signup-form">
+                    <div class="form-group">
+                        <label for="full_name">Full Name</label>
+                        <input type="text" id="full_name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone (Optional)</label>
+                            <input type="tel" id="phone">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Account Type</label>
+                        <select id="role">
+                            <option value="patient" selected>Patient (I'm looking for medicine)</option>
+                            <option value="pharmacy">Pharmacy (I'm selling medicine)</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Create Account</button>
+                </form>
+                <p style="text-align: center; margin-top: 1rem;">
+                    Already have an account? <a href="login.html">Login</a>
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 MediFind - Medicine Availability System</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

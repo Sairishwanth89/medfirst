@@ -27,11 +27,11 @@ class Settings(BaseSettings):
     ELASTICSEARCH_INDEX: str = "medicines"
     
     # Celery
-    CELERY_BROKER_URL: str = "redis://localhost:6379/1"
-    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/2"
+    CELERY_BROKER_URL: str = "redis://redis:6379/1"
+    CELERY_RESULT_BACKEND: str = "redis://redis:6379/2"
     
     # Database (SQLite for simplicity, can switch to PostgreSQL)
-    DATABASE_URL: str = "sqlite:///./medicine_system.db"
+    DATABASE_URL: str = "sqlite:///./data/medicine_system.db"
     
     # Monitoring
     PROMETHEUS_PORT: int = 9090

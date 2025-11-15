@@ -1,9 +1,13 @@
+#
+# FILENAME: backend/main.py
+#
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from prometheus_client import make_asgi_app
 import logging
 
-from api.routes import auth, medicines, stock, orders
+# --- IMPORT THE NEW ROUTERS ---
+from api.routes import auth, medicines, stock, orders, pharmacies, analytics
 from core.config import settings
 from core.monitoring import setup_metrics
 
@@ -38,6 +42,11 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(medicines.router, prefix="/api/medicines", tags=["Medicines"])
 app.include_router(stock.router, prefix="/api/stock", tags=["Stock Management"])
 app.include_router(orders.router, prefix="/api/orders", tags=["Orders"])
+app.include_router(pharmacies.router, prefix="/api/pharmacies", tags=["Pharmacies"])
+
+# --- INCLUDE THE NEW ANALYTICS ROUTER ---
+app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics"])
+
 
 # Prometheus metrics endpoint
 metrics_app = make_asgi_app()

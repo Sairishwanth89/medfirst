@@ -44,7 +44,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./medicine_system.db
+      - DATABASE_URL=sqlite:///./data/medicine_system.db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - ELASTICSEARCH_HOST=elasticsearch
@@ -54,6 +54,7 @@ services:
     volumes:
       - ./backend:/app
       - backend_db:/app/data
+      - ./training:/app/training
     depends_on:
       redis:
         condition: service_healthy
@@ -68,7 +69,7 @@ services:
       dockerfile: Dockerfile
     container_name: medicine-celery-worker
     environment:
-      - DATABASE_URL=sqlite:///./medicine_system.db
+      - DATABASE_URL=sqlite:///./data/medicine_system.db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - ELASTICSEARCH_HOST=elasticsearch
@@ -78,11 +79,24 @@ services:
     volumes:
       - ./backend:/app
       - backend_db:/app/data
+      - ./training:/app/training
     depends_on:
       - redis
       - backend
     command: celery -A tasks.celery_app worker --loglevel=info
 
+  prediction-service:
+    build:
+      context: ./prediction_service
+      dockerfile: Dockerfile
+    container_name: medicine-prediction-service
+    ports:
+      - "8001:8001"
+    volumes:
+      # --- NEW SHARED VOLUME FOR MODEL (read) ---
+      - model_data:/app/model_data:ro # 'ro' = read-only
+    depends_on:
+      - backend
   # Prometheus for monitoring
   prometheus:
     image: prom/prometheus:latest
@@ -114,7 +128,8 @@ volumes:
   redis_data:
   elasticsearch_data:
   prometheus_data:
-  backend_db:
+  backend_db: # For the SQLite database file
+  model_data: # For the ML model file
 
 networks:
   default:
