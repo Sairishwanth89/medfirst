@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Availability System</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="container">
+                <div class="logo">
+                    <h1>🏥 MediFind</h1>
+                </div>
+                <div class="nav-links">
+                    <a href="index.html" class="active">Search</a>
+                    <a href="orders.html">My Orders</a>
+                    <a href="pharmacy.html">Pharmacy Dashboard</a>
+                    <a href="#" id="auth-link">Login</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h2>Find Essential Medicines Anytime, Anywhere</h2>
+            <p>Real-time medicine availability for emergency needs</p>
+        </section>
+
+        <section class="search-section">
+            <div class="search-card">
+                <h3>Search for Medicines</h3>
+                <form id="search-form">
+                    <div class="form-group">
+                        <input 
+                            type="text" 
+                            id="medicine-query" 
+                            placeholder="Enter medicine name (e.g., Paracetamol, Aspirin)"
+                            required
+                        >
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input 
+                                type="text" 
+                                id="city-filter" 
+                                placeholder="City (optional)"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <input 
+                                type="number" 
+                                id="max-price" 
+                                placeholder="Max Price (optional)"
+                                step="0.01"
+                                min="0"
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="is-24-hours">
+                            24-hour pharmacies only
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="no-prescription">
+                            No prescription required
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Search Medicines</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="results-section" id="results-section" style="display: none;">
+            <h3>Search Results</h3>
+            <div id="results-container"></div>
+        </section>
+
+        <div id="loading" style="display: none;" class="loading">
+            <div class="spinner"></div>
+            <p>Searching for medicines...</p>
+        </div>
+    </main>
+
+    <!-- Order Modal -->
+    <div id="order-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Place Order</h3>
+            <div id="order-medicine-details"></div>
+            <form id="order-form">
+                <div class="form-group">
+                    <label>Quantity</label>
+                    <input type="number" id="order-quantity" min="1" value="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Delivery Address</label>
+                    <textarea id="delivery-address" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optional)</label>
+                    <textarea id="order-notes" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 MediFind - Medicine Availability System</p>
+        </div>
+    </footer>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
