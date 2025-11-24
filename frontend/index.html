@@ -3,120 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Medicine Availability System</title>
+    <title>MediFind - Online Pharmacy</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1>🏥 MediFind</h1>
-                </div>
-                <div class="nav-links">
-                    <a href="index.html" class="active">Search</a>
-                    <a href="orders.html">My Orders</a>
-                    <a href="pharmacy.html">Pharmacy Dashboard</a>
-                    <a href="#" id="auth-link">Login</a>
+    <!-- Header -->
+    <header class="pe-header">
+        <div class="container header-content">
+            <div class="logo-section">
+                <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+                <div class="location-pill">
+                    <i class="fas fa-map-marker-alt lightning-icon"></i>
+                    <span>Express delivery to <strong>400001 Mumbai</strong></span>
+                    <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
-        </nav>
+            <div class="nav-actions">
+                <!-- Login Trigger -->
+                <a href="#" class="nav-item" id="login-btn"><i class="far fa-user"></i> Hello, Log in</a>
+                <a href="#" class="nav-item"><i class="fas fa-percent"></i> Offers</a>
+                <a href="#" class="nav-item" onclick="alert('Cart feature is a demo')">
+                    <i class="fas fa-shopping-cart"></i> Cart <span id="cart-count" class="badge-count">0</span>
+                </a>
+            </div>
+        </div>
     </header>
 
+    <!-- Categories Bar -->
+    <nav class="pe-sub-nav">
+        <div class="container">
+            <a href="#" class="active">Medicine</a>
+            <a href="#">Lab Tests</a>
+            <a href="#">Healthcare</a>
+            <a href="#">Health Blogs</a>
+            <a href="#">PLUS Membership</a>
+            <a href="#">Offers</a>
+            <a href="#">Surgeries</a>
+        </div>
+    </nav>
+
     <main class="container">
-        <section class="hero">
-            <h2>Find Essential Medicines Anytime, Anywhere</h2>
-            <p>Real-time medicine availability for emergency needs</p>
-        </section>
-
-        <section class="search-section">
-            <div class="search-card">
-                <h3>Search for Medicines</h3>
-                <form id="search-form">
-                    <div class="form-group">
-                        <input 
-                            type="text" 
-                            id="medicine-query" 
-                            placeholder="Enter medicine name (e.g., Paracetamol, Aspirin)"
-                            required
-                        >
-                    </div>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <input 
-                                type="text" 
-                                id="city-filter" 
-                                placeholder="City (optional)"
-                            >
-                        </div>
-                        <div class="form-group">
-                            <input 
-                                type="number" 
-                                id="max-price" 
-                                placeholder="Max Price (optional)"
-                                step="0.01"
-                                min="0"
-                            >
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="is-24-hours">
-                            24-hour pharmacies only
-                        </label>
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="no-prescription">
-                            No prescription required
-                        </label>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Search Medicines</button>
-                </form>
+        <!-- Hero/Search -->
+        <section class="pe-hero">
+            <h2>What are you looking for?</h2>
+            <div class="pe-search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="medicine-query" placeholder="Search for medicines, doctors, lab tests...">
+                <button class="pe-search-btn" onclick="handleSearch()">Search</button>
+            </div>
+            <div class="filter-tags">
+                <span><i class="fas fa-file-prescription"></i> Order with prescription. <a href="#">UPLOAD NOW ></a></span>
             </div>
         </section>
 
-        <section class="results-section" id="results-section" style="display: none;">
-            <h3>Search Results</h3>
-            <div id="results-container"></div>
+        <!-- Icon Categories -->
+        <section class="pe-categories">
+            <div class="cat-card">
+                <div class="icon-box" style="background: #e3fdfd;"><i class="fas fa-pills" style="color: #00a699;"></i></div>
+                <span>Medicine</span>
+                <small>UPTO 20% OFF</small>
+            </div>
+            <div class="cat-card">
+                <div class="icon-box" style="background: #fff0f0;"><i class="fas fa-microscope" style="color: #ff6b6b;"></i></div>
+                <span>Lab Tests</span>
+                <small>UPTO 70% OFF</small>
+            </div>
+            <div class="cat-card">
+                <div class="icon-box" style="background: #f0f4ff;"><i class="fas fa-user-md" style="color: #4d96ff;"></i></div>
+                <span>Doctors</span>
+                <small>BOOK NOW</small>
+            </div>
+            <div class="cat-card">
+                <div class="icon-box" style="background: #fff9db;"><i class="fas fa-plus-square" style="color: #f1c40f;"></i></div>
+                <span>PLUS</span>
+                <small>SAVE 5% EXTRA</small>
+            </div>
+            <div class="cat-card">
+                <div class="icon-box" style="background: #f3f0ff;"><i class="fas fa-percent" style="color: #9b59b6;"></i></div>
+                <span>Offers</span>
+                <small>LOWEST PRICES</small>
+            </div>
         </section>
 
-        <div id="loading" style="display: none;" class="loading">
-            <div class="spinner"></div>
-            <p>Searching for medicines...</p>
-        </div>
+        <!-- Dynamic Results Area -->
+        <div id="loading" style="display: none; text-align: center; margin: 20px;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        <section id="results-section" style="display: none; margin-bottom: 40px;">
+            <h3 style="color: #4f585e; margin-bottom: 20px;">Search Results</h3>
+            <div id="results-container" class="pe-results-grid"></div>
+        </section>
+
+        <!-- New Launches Section -->
+        <section class="section-group">
+            <h3>New Launches <small>New wellness range just for you!</small></h3>
+            <div class="pe-results-grid">
+                <!-- Fake Product 1 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-prescription-bottle-alt fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>Volini Max Roll-On</h4>
+                    <p style="font-size:13px; color:#777;">Pain Relief 50ml</p>
+                    <div class="price">$12.50 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(15% OFF)</span></div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 2 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-pump-soap fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>SoftSkin Baby Lotion</h4>
+                    <p style="font-size:13px; color:#777;">Moisturizing 200ml</p>
+                    <div class="price">$25.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(5% OFF)</span></div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 3 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-capsules fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>VitalMulti Women</h4>
+                    <p style="font-size:13px; color:#777;">60 Tablets</p>
+                    <div class="price">$45.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(10% OFF)</span></div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 4 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-vial fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>Iron+ Syrup</h4>
+                    <p style="font-size:13px; color:#777;">Hemoglobin Support</p>
+                    <div class="price">$18.99 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(20% OFF)</span></div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Near You Section -->
+        <section class="section-group" style="margin-top: 40px;">
+            <h3>Trending Near You <small>Popular in Mumbai</small></h3>
+            <div class="pe-results-grid">
+                <!-- Fake Product 5 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-mask fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>N95 Face Mask</h4>
+                    <p style="font-size:13px; color:#777;">Pack of 5</p>
+                    <div class="price">$10.00</div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 6 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-thermometer-half fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>Digital Thermometer</h4>
+                    <p style="font-size:13px; color:#777;">Fast Reading</p>
+                    <div class="price">$15.50</div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 7 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-first-aid fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>First Aid Kit</h4>
+                    <p style="font-size:13px; color:#777;">Standard Box</p>
+                    <div class="price">$30.00</div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+                <!-- Fake Product 8 -->
+                <div class="medicine-card">
+                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+                        <i class="fas fa-hand-holding-water fa-3x" style="color:#ddd;"></i>
+                    </div>
+                    <h4>Hand Sanitizer</h4>
+                    <p style="font-size:13px; color:#777;">Alcohol Based 500ml</p>
+                    <div class="price">$8.00</div>
+                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Promo Banners (Existing) -->
+        <section class="pe-banners" style="margin-top: 40px;">
+            <div class="banner-box">
+                <div class="banner-text">
+                    <h3>Generic Medicines</h3>
+                    <p>Flat 50% off on generic substitutes.</p>
+                </div>
+                <div class="banner-icon"><i class="fas fa-tablets fa-3x" style="color: #10847e; opacity: 0.2;"></i></div>
+            </div>
+            <div class="banner-box" style="background: #fff5e6;">
+                <div class="banner-text">
+                    <h3>Immunity Boosters</h3>
+                    <p>Protect your family this season.</p>
+                </div>
+                <div class="banner-icon"><i class="fas fa-shield-alt fa-3x" style="color: #e67e22; opacity: 0.2;"></i></div>
+            </div>
+        </section>
     </main>
 
-    <!-- Order Modal -->
-    <div id="order-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h3>Place Order</h3>
-            <div id="order-medicine-details"></div>
-            <form id="order-form">
-                <div class="form-group">
-                    <label>Quantity</label>
-                    <input type="number" id="order-quantity" min="1" value="1" required>
-                </div>
-                <div class="form-group">
-                    <label>Delivery Address</label>
-                    <textarea id="delivery-address" rows="3" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Notes (optional)</label>
-                    <textarea id="order-notes" rows="2"></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Place Order</button>
-            </form>
-        </div>
-    </div>
-
+    <!-- Footer -->
     <footer>
         <div class="container">
-            <p>&copy; 2024 MediFind - Medicine Availability System</p>
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Partner with MediFind</a>
+                    <a href="#">Sell at MediFind</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Our Services</h4>
+                    <a href="#">Order Medicine</a>
+                    <a href="#">Healthcare Products</a>
+                    <a href="#">Lab Tests</a>
+                    <a href="#">Find a Doctor</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Featured Categories</h4>
+                    <a href="#">Personal Care</a>
+                    <a href="#">Health Food and Drinks</a>
+                    <a href="#">Skin Care</a>
+                    <a href="#">Home Care</a>
+                    <a href="#">Ayurvedic Care</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Need Help</h4>
+                    <a href="#">Browse All Medicines</a>
+                    <a href="#">Browse All Molecules</a>
+                    <a href="#">Browse All Cities</a>
+                    <a href="#">FAQs</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Follow Us On</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>Our Payment Partners</p>
+                <div class="payment-icons">
+                    <i class="fab fa-cc-visa fa-2x"></i>
+                    <i class="fab fa-cc-mastercard fa-2x"></i>
+                    <i class="fab fa-cc-amex fa-2x"></i>
+                    <i class="fab fa-cc-amazon-pay fa-2x"></i>
+                </div>
+                <p class="copyright">© 2024 MediFind. All Rights Reserved.</p>
+            </div>
         </div>
     </footer>
+
+    <!-- AUTH MODAL (Blurred Background) -->
+    <div id="auth-modal" class="modal-backdrop">
+        <div class="modal-content auth-container">
+            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            
+            <!-- Login View -->
+            <div id="login-view">
+                <div class="auth-header">
+                    <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+                    <h3>Quick Login</h3>
+                </div>
+                <form id="login-form">
+                    <div class="pe-input-group">
+                        <label>Username</label>
+                        <input type="text" id="login-username" required>
+                    </div>
+                    <div class="pe-input-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="pe-btn-primary">Login</button>
+                </form>
+                <p class="switch-auth">New to MediFind? <a href="#" onclick="showSignup()">Create an account</a></p>
+            </div>
+
+            <!-- Signup View -->
+            <div id="signup-view" style="display: none;">
+                <div class="auth-header">
+                    <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+                    <h3>Register</h3>
+                </div>
+                <form id="signup-form">
+                    <div class="pe-input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="reg-name">
+                    </div>
+                    <div class="pe-input-group">
+                        <label>Email</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="pe-input-group">
+                        <label>Username</label>
+                        <input type="text" id="reg-username" required>
+                    </div>
+                    <div class="pe-input-group">
+                        <label>Password</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <div class="pe-input-group">
+                        <label>I am a:</label>
+                        <select id="reg-role">
+                            <option value="patient">User (Buyer)</option>
+                            <option value="pharmacy">Pharmacist (Seller)</option>
+                            <option value="delivery">Delivery Partner</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="pe-btn-primary">Register</button>
+                </form>
+                <p class="switch-auth">Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
+            </div>
+        </div>
+    </div>
 
     <script src="js/app.js"></script>
 </body>

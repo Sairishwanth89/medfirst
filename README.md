@@ -13,6 +13,7 @@ Patients often face difficulty finding essential medicines during emergencies du
 ## Solution
 
 This system provides:
+.
 - **Real-time medicine availability** using Redis caching
 - **Fast medicine search** using Elasticsearch with full-text search
 - **Secure authentication** using JWT tokens

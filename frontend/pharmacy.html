@@ -5,197 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharmacy Dashboard - MediFind</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="container">
-                <div class="logo">
-                    <h1><a href="index.html" style="color:white; text-decoration: none;">🏥 MediFind</a></h1>
-                </div>
-                <div class="nav-links">
-                    <a href="index.html">Search</a>
-                    <a href="orders.html">My Orders</a>
-                    <a href="pharmacy.html" class="active">Pharmacy Dashboard</a>
-                    <a href="#" id="auth-link">Login</a>
-                </div>
+    <header class="pe-header">
+        <div class="container header-content">
+            <div class="logo"><i class="fas fa-heartbeat"></i> MediFind Partner</div>
+            <div class="nav-actions">
+                <span id="pharmacy-name" style="font-weight: 600;">My Pharmacy</span>
+                <a href="#" id="logout-btn" class="nav-item" style="color: #e74c3c;">Logout</a>
             </div>
-        </nav>
+        </div>
     </header>
 
-    <main class="container">
-        <section class="hero" style="padding: 2rem 0;">
-            <h2>Pharmacy Dashboard</h2>
-            <p id="dashboard-subtitle">Manage your pharmacy profile and inventory</p>
-        </section>
-        
-        <div id="alert-box" style="display: none;"></div>
-
-        <div id="loading" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            <p>Loading your dashboard...</p>
+    <main class="container" style="padding-top: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Dashboard</h2>
+            <button class="pe-btn-primary" style="width: auto;" onclick="openAddModal()">+ Add Medicine</button>
         </div>
 
-        <section id="create-pharmacy-section" class="dashboard-card" style="display: none;">
-            <h3>Create Your Pharmacy Profile</h3>
-            <p>You must create a pharmacy profile before you can add medicine.</p>
-            <form id="create-pharmacy-form" style="margin-top: 1.5rem;">
-                <div class="form-group">
-                    <label for="pharmacy-name">Pharmacy Name</label>
-                    <input type="text" id="pharmacy-name" required>
+        <!-- Stats Grid -->
+        <div class="pe-banners" style="margin-bottom: 30px;">
+            <div class="banner-box">
+                <div class="banner-text">
+                    <h3>Total Orders</h3>
+                    <p style="font-size: 24px; font-weight: 700;">12</p>
                 </div>
-                <div class="form-group">
-                    <label for="pharmacy-address">Address</label>
-                    <input type="text" id="pharmacy-address" required>
+                <div class="banner-icon"><i class="fas fa-shopping-bag fa-2x" style="color: var(--primary);"></i></div>
+            </div>
+            <div class="banner-box" style="background: #fff0f0;">
+                <div class="banner-text">
+                    <h3 style="color: #e74c3c;">Low Stock</h3>
+                    <p style="font-size: 24px; font-weight: 700; color: #e74c3c;">4 Items</p>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pharmacy-city">City</label>
-                        <input type="text" id="pharmacy-city" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="pharmacy-phone">Phone</label>
-                        <input type="tel" id="pharmacy-phone">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="pharmacy-lat">Latitude (Optional)</label>
-                        <input type="number" step="any" id="pharmacy-lat">
-                    </div>
-                    <div class="form-group">
-                        <label for="pharmacy-lon">Longitude (Optional)</label>
-                        <input type="number" step="any" id="pharmacy-lon">
-                    </div>
-                </div>
-                <label class="checkbox-label" style="margin-bottom: 1.5rem;">
-                    <input type="checkbox" id="pharmacy-is-24-hours">
-                    We are open 24 hours
-                </label>
-                <button type="submit" class="btn btn-primary">Create Profile</button>
-            </form>
-        </section>
+                <div class="banner-icon"><i class="fas fa-exclamation-triangle fa-2x" style="color: #e74c3c;"></i></div>
+            </div>
+        </div>
 
-        <section id="manage-stock-section" style="display: none;">
-            
-            <div class="dashboard-card" style="margin-bottom: 2rem;">
-                <h3>Incoming Orders</h3>
-                <div id="orders-loading" class="loading" style="padding: 1rem 0;">
-                    <div class="spinner"></div>
-                </div>
-                <table id="orders-table" style="display: none; width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>Order ID</th>
-                            <th>Date</th>
-                            <th>Customer Address</th>
-                            <th>Total</th>
-                            <th>Items</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="orders-table-body">
-                        </tbody>
-                </table>
-                <p id="no-orders-message" style="display: none; text-align: center; padding: 1rem;">
-                    You have no incoming orders.
-                </p>
-            </div>
+        <!-- Tabs -->
+        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee;">
+            <button class="pe-btn-primary" style="background: transparent; color: var(--primary); border-bottom: 2px solid var(--primary); border-radius: 0;" onclick="showTab('orders')">Orders</button>
+            <button class="pe-btn-primary" style="background: transparent; color: #666; border-radius: 0;" onclick="showTab('inventory')">Inventory</button>
+        </div>
 
-            <div class="dashboard-card" style="margin-bottom: 2rem;">
-                <h3>Add New Medicine to Inventory</h3>
-                <form id="add-medicine-form">
-                    <div class="form-group">
-                        <label for="med-name">Medicine Name</label>
-                        <input type="text" id="med-name" required>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="med-generic-name">Generic Name (Optional)</label>
-                            <input type="text" id="med-generic-name">
-                        </div>
-                        <div class="form-group">
-                            <label for="med-manufacturer">Manufacturer (Optional)</label>
-                            <input type="text" id="med-manufacturer">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="med-description">Description (Optional)</label>
-                        <textarea id="med-description" rows="2"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="med-price">Unit Price</label>
-                            <input type="number" id="med-price" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="med-stock">Stock Quantity</label>
-                            <input type="number" id="med-stock" step="1" min="0" required>
-                        </div>
-                    </div>
-                    <label class="checkbox-label" style="margin-bottom: 1.5rem;">
-                        <input type="checkbox" id="med-requires-prescription">
-                        Requires Prescription
-                    </label>
-                    <button type="submit" class="btn btn-success">Add to Inventory</button>
-                </form>
+        <!-- Orders Tab -->
+        <div id="orders-tab">
+            <div class="pe-results-grid" id="orders-container">
+                <!-- Orders will be injected here -->
+                <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #999;">Loading orders...</div>
             </div>
-            
-            <div class="dashboard-card" style="margin-top: 2rem;">
-                <h3>Current Inventory</h3>
-                <div id="stock-loading" class="loading" style="padding: 1rem 0;">
-                    <div class="spinner"></div>
-                </div>
-                <table id="stock-table" style="display: none; width: 100%;">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Stock</th>
-                            <th>Price</th>
-                            <th>Prescription?</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stock-table-body">
-                        </tbody>
-                </table>
-                <p id="no-stock-message" style="display: none; text-align: center; padding: 1rem;">
-                    Your inventory is empty. Add a medicine above to get started.
-                </p>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div id="inventory-tab" style="display: none;">
+            <div class="pe-results-grid" id="inventory-container">
+                <!-- Inventory will be injected here -->
             </div>
-        </section>
+        </div>
     </main>
 
-    <div id="edit-stock-modal" class="modal">
+    <!-- Add Medicine Modal -->
+    <div id="add-modal" class="modal-backdrop">
         <div class="modal-content">
-            <span class="close" id="modal-close">&times;</span>
-            <h3>Edit Stock</h3>
-            <form id="edit-stock-form">
-                <input type="hidden" id="edit-med-id">
-                <div class="form-group">
-                    <label for="edit-med-name">Medicine Name (Read-only)</label>
-                    <input type="text" id="edit-med-name" readonly>
+            <span class="close-modal" onclick="closeAddModal()">&times;</span>
+            <div class="auth-header"><h3>Add New Stock</h3></div>
+            <form id="add-med-form">
+                <div class="pe-input-group">
+                    <label>Medicine Name</label>
+                    <input type="text" id="med-name" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-med-price">Unit Price</label>
-                        <input type="number" id="edit-med-price" step="0.01" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-med-stock">Stock Quantity</label>
-                        <input type="number" id="edit-med-stock" step="1" min="0" required>
-                    </div>
+                <div class="pe-input-group">
+                    <label>Price</label>
+                    <input type="number" id="med-price" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <div class="pe-input-group">
+                    <label>Quantity</label>
+                    <input type="number" id="med-qty" required>
+                </div>
+                <button type="submit" class="pe-btn-primary">Add to Inventory</button>
             </form>
         </div>
     </div>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2024 MediFind - Medicine Availability System</p>
-        </div>
-    </footer>
 
     <script src="js/app.js"></script>
     <script src="js/pharmacy.js"></script>

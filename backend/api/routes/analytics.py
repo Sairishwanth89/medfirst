@@ -1,5 +1,6 @@
 #
 # FILENAME: backend/api/routes/analytics.py
+# [--- THIS IS THE FULLY CORRECTED FILE ---]
 #
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -13,24 +14,34 @@ from api.schemas import MostSoldMedicineResponse, BusiestPharmacyResponse
 
 router = APIRouter()
 
+# --- NEW: RBAC Dependency ---
+async def get_admin_user(current_user: User = Depends(get_current_user)):
+    """
+    Dependency to check if the current user is an ADMIN.
+    """
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this resource."
+        )
+    return current_user
+# --- END NEW ---
+
 
 @router.get(
     "/most-sold-medicines", 
-    response_model=List[MostSoldMedicineResponse]
+    response_model=List[MostSoldMedicineResponse],
+    # --- FIX: ADD ADMIN DEPENDENCY ---
+    dependencies=[Depends(get_admin_user)]
 )
 async def get_most_sold_medicines(
     limit: int = 10,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Get the most sold medicines across all pharmacies.
-    (This is a simplified example; a real one might be
-     admin-only or filtered by pharmacy owner)
+    (ADMIN role required)
     """
-    # This query groups by medicine_id, sums the quantity,
-    # joins with the Medicine table to get the name,
-    # and orders by the summed quantity in descending order.
     most_sold = (
         db.query(
             Medicine.name,
@@ -44,7 +55,6 @@ async def get_most_sold_medicines(
         .all()
     )
     
-    # Format the response
     return [
         {"medicine_name": name, "medicine_id": med_id, "total_sold": total}
         for name, med_id, total in most_sold
@@ -53,20 +63,18 @@ async def get_most_sold_medicines(
 
 @router.get(
     "/busiest-pharmacies", 
-    response_model=List[BusiestPharmacyResponse]
+    response_model=List[BusiestPharmacyResponse],
+    # --- FIX: ADD ADMIN DEPENDENCY ---
+    dependencies=[Depends(get_admin_user)]
 )
 async def get_busiest_pharmacies(
     limit: int = 10,
-    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Get the busiest pharmacies based on the number of orders received.
-    (This should ideally be an ADMIN-only endpoint)
+    (ADMIN role required)
     """
-    # This query groups by pharmacy_id, counts the number of orders,
-    # joins with the Pharmacy table to get the name,
-    # and orders by the order count in descending order.
     busiest = (
         db.query(
             Pharmacy.name,
@@ -80,7 +88,6 @@ async def get_busiest_pharmacies(
         .all()
     )
     
-    # Format the response
     return [
         {"pharmacy_name": name, "pharmacy_id": pharm_id, "total_orders": total}
         for name, pharm_id, total in busiest

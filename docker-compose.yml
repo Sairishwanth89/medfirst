@@ -1,7 +1,23 @@
-version: '3.8'
+
 
 services:
-  # Redis for caching and Celery broker
+  # RabbitMQ for message brokering (Replacements Celery/Redis for queuing)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: medicine-rabbitmq
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis (Retained for Caching purposes only)
   redis:
     image: redis:7-alpine
     container_name: medicine-redis
@@ -16,7 +32,7 @@ services:
       timeout: 3s
       retries: 3
 
-  # Elasticsearch for medicine search
+  # Elasticsearch for search functionality
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
     container_name: medicine-elasticsearch
@@ -35,84 +51,62 @@ services:
       timeout: 10s
       retries: 3
 
-  # FastAPI backend application
+  # Backend API Service
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: medicine-backend
+    env_file: .env
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=sqlite:///./data/medicine_system.db
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
     volumes:
       - ./backend:/app
       - backend_db:/app/data
-      - ./training:/app/training
     depends_on:
-      redis:
+      rabbitmq:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Celery worker for background tasks
-  celery-worker:
+  # Background Worker (Consumes RabbitMQ messages)
+  background-worker:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: medicine-celery-worker
+    container_name: medicine-worker
+    env_file: .env
     environment:
       - DATABASE_URL=sqlite:///./data/medicine_system.db
       - REDIS_HOST=redis
-      - REDIS_PORT=6379
       - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-      - CELERY_BROKER_URL=redis://redis:6379/1
-      - CELERY_RESULT_BACKEND=redis://redis:6379/2
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_USER=guest
+      - RABBITMQ_PASS=guest
     volumes:
       - ./backend:/app
       - backend_db:/app/data
-      - ./training:/app/training
+      # Remove these if you have deleted the folders as discussed
+      # - model_data:/app/model_data 
+      # - ./training:/app/training
     depends_on:
+      - rabbitmq
+      - backend
       - redis
-      - backend
-    command: celery -A tasks.celery_app worker --loglevel=info
+    # Runs the new RabbitMQ consumer script
+    command: python worker.py
 
-  prediction-service:
-    build:
-      context: ./prediction_service
-      dockerfile: Dockerfile
-    container_name: medicine-prediction-service
-    ports:
-      - "8001:8001"
-    volumes:
-      # --- NEW SHARED VOLUME FOR MODEL (read) ---
-      - model_data:/app/model_data:ro # 'ro' = read-only
-    depends_on:
-      - backend
-  # Prometheus for monitoring
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: medicine-prometheus
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    depends_on:
-      - backend
-
-  # Nginx for serving frontend
+  # Frontend Service (Nginx)
   frontend:
     image: nginx:alpine
     container_name: medicine-frontend
@@ -124,12 +118,22 @@ services:
     depends_on:
       - backend
 
+  # Monitoring (Prometheus)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: medicine-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+
 volumes:
   redis_data:
   elasticsearch_data:
   prometheus_data:
-  backend_db: # For the SQLite database file
-  model_data: # For the ML model file
+  backend_db:
+  # model_data: # Remove if ML feature is fully deprecated
 
 networks:
   default:
