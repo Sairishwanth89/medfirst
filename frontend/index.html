@@ -23,8 +23,9 @@
                 <!-- Login Trigger -->
                 <a href="#" class="nav-item" id="login-btn"><i class="far fa-user"></i> Hello, Log in</a>
                 <a href="#" class="nav-item"><i class="fas fa-percent"></i> Offers</a>
-                <a href="#" class="nav-item" onclick="alert('Cart feature is a demo')">
-                    <i class="fas fa-shopping-cart"></i> Cart <span id="cart-count" class="badge-count">0</span>
+                <!-- UPDATE: Cart Button hooked to openCart() -->
+                <a href="#" class="nav-item" onclick="openCart()">
+                    <i class="fas fa-shopping-cart"></i> Cart <span id="cart-count" class="badge-count" style="display:none;">0</span>
                 </a>
             </div>
         </div>
@@ -93,7 +94,7 @@
             <div id="results-container" class="pe-results-grid"></div>
         </section>
 
-        <!-- New Launches Section -->
+        <!-- NEW: New Launches Section -->
         <section class="section-group">
             <h3>New Launches <small>New wellness range just for you!</small></h3>
             <div class="pe-results-grid">
@@ -105,7 +106,8 @@
                     <h4>Volini Max Roll-On</h4>
                     <p style="font-size:13px; color:#777;">Pain Relief 50ml</p>
                     <div class="price">$12.50 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(15% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <!-- Add to Cart (Hardcoded ID for demo) -->
+                    <button class="add-btn" onclick="addToCart('fake_1', 'Volini Max Roll-On', 12.50, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 2 -->
                 <div class="medicine-card">
@@ -115,7 +117,7 @@
                     <h4>SoftSkin Baby Lotion</h4>
                     <p style="font-size:13px; color:#777;">Moisturizing 200ml</p>
                     <div class="price">$25.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(5% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_2', 'SoftSkin Baby Lotion', 25.00, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 3 -->
                 <div class="medicine-card">
@@ -125,7 +127,7 @@
                     <h4>VitalMulti Women</h4>
                     <p style="font-size:13px; color:#777;">60 Tablets</p>
                     <div class="price">$45.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(10% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_3', 'VitalMulti Women', 45.00, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 4 -->
                 <div class="medicine-card">
@@ -135,12 +137,12 @@
                     <h4>Iron+ Syrup</h4>
                     <p style="font-size:13px; color:#777;">Hemoglobin Support</p>
                     <div class="price">$18.99 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(20% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_4', 'Iron+ Syrup', 18.99, 'demo_pharmacy')">Add to Cart</button>
                 </div>
             </div>
         </section>
 
-        <!-- Trending Near You Section -->
+        <!-- NEW: Trending Near You Section -->
         <section class="section-group" style="margin-top: 40px;">
             <h3>Trending Near You <small>Popular in Mumbai</small></h3>
             <div class="pe-results-grid">
@@ -152,7 +154,7 @@
                     <h4>N95 Face Mask</h4>
                     <p style="font-size:13px; color:#777;">Pack of 5</p>
                     <div class="price">$10.00</div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_5', 'N95 Face Mask', 10.00, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 6 -->
                 <div class="medicine-card">
@@ -162,7 +164,7 @@
                     <h4>Digital Thermometer</h4>
                     <p style="font-size:13px; color:#777;">Fast Reading</p>
                     <div class="price">$15.50</div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_6', 'Digital Thermometer', 15.50, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 7 -->
                 <div class="medicine-card">
@@ -172,7 +174,7 @@
                     <h4>First Aid Kit</h4>
                     <p style="font-size:13px; color:#777;">Standard Box</p>
                     <div class="price">$30.00</div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_7', 'First Aid Kit', 30.00, 'demo_pharmacy')">Add to Cart</button>
                 </div>
                 <!-- Fake Product 8 -->
                 <div class="medicine-card">
@@ -182,7 +184,7 @@
                     <h4>Hand Sanitizer</h4>
                     <p style="font-size:13px; color:#777;">Alcohol Based 500ml</p>
                     <div class="price">$8.00</div>
-                    <button class="add-btn" onclick="addToCart()">Add to Cart</button>
+                    <button class="add-btn" onclick="addToCart('fake_8', 'Hand Sanitizer', 8.00, 'demo_pharmacy')">Add to Cart</button>
                 </div>
             </div>
         </section>
@@ -206,7 +208,7 @@
         </section>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer (Added) -->
     <footer>
         <div class="container">
             <div class="footer-grid">
