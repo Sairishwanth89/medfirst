@@ -24,7 +24,7 @@ router.post('/search', async (req, res) => {
     const medicineIds = hits.hits.map(hit => hit._id);
 
     // Fetch full details from MongoDB (to get latest stock/price and populate pharmacy)
-    // We preserve the order from ES results
+    // We preserve the order from ES results by fetching and then mapping
     const medicines = await Medicine.find({ _id: { $in: medicineIds } })
                                     .populate('pharmacy_id');
 

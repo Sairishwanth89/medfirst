@@ -51,7 +51,7 @@ window.addToCart = function(medicineId, name, price, pharmacyId) {
     alert(`${name} added to cart!`);
 }
 
-// Function to open Cart (Mockup for now, could be a modal or page)
+// Function to open Cart (Mockup for now)
 window.openCart = function() {
     if (cart.length === 0) {
         alert("Your cart is empty.");
@@ -78,15 +78,10 @@ window.openCart = function() {
 }
 
 async function placeOrder() {
-    // Group items by Pharmacy (Orders are typically per pharmacy)
-    // For simplicity, we'll just take the first pharmacy found or handle multiple orders
-    // Let's assume single pharmacy order for this demo or just error out if mixed
-    
     if (cart.length === 0) return;
 
-    const pharmacyId = cart[0].pharmacyId; // Simplification
+    const pharmacyId = cart[0].pharmacyId; // Simplification for demo: assumes single pharmacy order
     
-    // Filter items for this pharmacy
     const items = cart.map(item => ({
         medicine_id: item.medicineId,
         quantity: item.quantity
@@ -123,7 +118,7 @@ async function placeOrder() {
 }
 
 
-// --- Auth & Modal Logic (Existing) ---
+// --- Auth & Modal Logic ---
 
 const modal = document.getElementById('auth-modal');
 const loginView = document.getElementById('login-view');
@@ -161,6 +156,7 @@ if(loginForm) {
             alert(`Welcome back, ${data.user.username}!`);
             
             // --- ROLE REDIRECTION LOGIC ---
+            // This ensures users go to their specific dashboard
             if(data.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
             else if(data.user.role === 'delivery') window.location.href = 'delivery.html';
             else window.location.href = 'index.html'; // Patient stays here
@@ -247,8 +243,6 @@ window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.showLogin = showLogin;
 window.showSignup = showSignup;
-window.openCart = function() {
-    window.location.href = 'cart.html';
-}
+
 // Init
 updateAuthUI();
