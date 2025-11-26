@@ -48,14 +48,18 @@
         <!-- Hero/Search -->
         <section class="pe-hero">
             <h2>What are you looking for?</h2>
-            <div class="pe-search-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="medicine-query" placeholder="Search for medicines, doctors, lab tests...">
-                <button class="pe-search-btn" onclick="handleSearch()">Search</button>
+
+            <!-- unified functional search (product-search) -->
+            <div class="search-bar hero-search">
+                <input id="product-search" placeholder="Search medicines, brands or SKU — try 'paracetamol' or 'clavam'"/>
+                <button id="search-btn" type="button">Search</button>
             </div>
+
             <div class="filter-tags">
-                <span><i class="fas fa-file-prescription"></i> Order with prescription. <a href="#">UPLOAD NOW ></a></span>
-            </div>
+                 <span><i class="fas fa-file-prescription"></i> Order with prescription. <a href="#">UPLOAD NOW ></a></span>
+             </div>
+ 
+             <div id="search-results" class="results-grid"></div>
         </section>
 
         <!-- Icon Categories -->
@@ -329,5 +333,7 @@
     </div>
 
     <script src="js/app.js"></script>
+    <script src="js/search.js"></script>
 </body>
 </html>
+

@@ -1,0 +1,453 @@
+[
+  {
+    "display_name": "Dolo 650mg Strip Of 15 Tablets",
+    "manufacturer_name": "By MICRO LABS",
+    "image_url": "[https://example.com/images/dolo650.png](https://example.com/images/dolo650.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Paracetamol (650mg)",
+    "keywords": ["fever", "pain", "body ache", "headache", "paracetamol"]
+  },
+  {
+    "display_name": "Calpol 650mg Strip Of 15 Tablets",
+    "manufacturer_name": "By GSK",
+    "image_url": "[https://example.com/images/calpol650.png](https://example.com/images/calpol650.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Paracetamol (650mg)",
+    "keywords": ["fever", "pain", "temperature", "paracetamol"]
+  },
+  {
+    "display_name": "Sumo L 650 Tablet Strip Of 15",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/sumol650.png](https://example.com/images/sumol650.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Paracetamol (650mg)",
+    "keywords": ["fever", "pain", "mild pain", "paracetamol"]
+  },
+
+  {
+    "display_name": "Pan D Capsule 15'S",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/pand.png](https://example.com/images/pand.png)",
+    "pack_desc": "15 Capsule(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Pantoprazole (40mg) + Domperidone (30mg)",
+    "keywords": ["acidity", "gas", "indigestion", "gerd", "stomach pain"]
+  },
+  {
+    "display_name": "Pantocid D Capsule Strip Of 10",
+    "manufacturer_name": "By SUN PHARMA",
+    "image_url": "[https://example.com/images/pantocidd.png](https://example.com/images/pantocidd.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Pantoprazole (40mg) + Domperidone (30mg)",
+    "keywords": ["acidity", "heartburn", "reflux", "gas"]
+  },
+  {
+    "display_name": "Pantop D Capsule Strip Of 10",
+    "manufacturer_name": "By ARISTO PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/pantopd.png](https://example.com/images/pantopd.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Pantoprazole (40mg) + Domperidone (30mg)",
+    "keywords": ["acidity", "bloating", "gastritis"]
+  },
+
+  {
+    "display_name": "Augmentin 625 Duo Tablet Strip Of 10",
+    "manufacturer_name": "By GSK",
+    "image_url": "[https://example.com/images/augmentin.png](https://example.com/images/augmentin.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Amoxycillin (500mg) + Clavulanic Acid (125mg)",
+    "keywords": ["antibiotic", "infection", "bacterial", "throat infection"]
+  },
+  {
+    "display_name": "Moxikind-CV 625 Tablet Strip Of 10",
+    "manufacturer_name": "By MANKIND PHARMA",
+    "image_url": "[https://example.com/images/moxikind.png](https://example.com/images/moxikind.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Amoxycillin (500mg) + Clavulanic Acid (125mg)",
+    "keywords": ["antibiotic", "infection", "lungs", "ear infection"]
+  },
+  {
+    "display_name": "Clavam 625 Tablet Strip Of 10",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/clavam.png](https://example.com/images/clavam.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Amoxycillin (500mg) + Clavulanic Acid (125mg)",
+    "keywords": ["antibiotic", "infection", "uti", "skin infection"]
+  },
+
+  {
+    "display_name": "Montair LC Tablet Strip Of 15",
+    "manufacturer_name": "By CIPLA",
+    "image_url": "[https://example.com/images/montairlc.png](https://example.com/images/montairlc.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Montelukast (10mg) + Levocetirizine (5mg)",
+    "keywords": ["allergy", "cold", "runny nose", "sneezing", "asthma"]
+  },
+  {
+    "display_name": "Telekast L Tablet Strip Of 15",
+    "manufacturer_name": "By LUPIN",
+    "image_url": "[https://example.com/images/telekastl.png](https://example.com/images/telekastl.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Montelukast (10mg) + Levocetirizine (5mg)",
+    "keywords": ["allergy", "hay fever", "rhinitis"]
+  },
+  {
+    "display_name": "Montek LC Tablet Strip Of 10",
+    "manufacturer_name": "By SUN PHARMA",
+    "image_url": "[https://example.com/images/monteklc.png](https://example.com/images/monteklc.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Montelukast (10mg) + Levocetirizine (5mg)",
+    "keywords": ["allergy", "cold", "blocked nose"]
+  },
+
+  {
+    "display_name": "Shelcal 500mg Strip Of 15 Tablets",
+    "manufacturer_name": "By TORRENT PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/shelcal500.png](https://example.com/images/shelcal500.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Calcium (500mg) + Vitamin D3",
+    "keywords": ["calcium", "bones", "vitamin d", "supplement", "weakness"]
+  },
+  {
+    "display_name": "Cipcal 500 Tablet Strip Of 15",
+    "manufacturer_name": "By CIPLA",
+    "image_url": "[https://example.com/images/cipcal500.png](https://example.com/images/cipcal500.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Calcium (500mg) + Vitamin D3",
+    "keywords": ["calcium", "osteoporosis", "strong bones"]
+  },
+  {
+    "display_name": "Gemcal Capsule Strip Of 15",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/gemcal.png](https://example.com/images/gemcal.png)",
+    "pack_desc": "15 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Calcium Carbonate + Calcitriol + Zinc",
+    "keywords": ["calcium", "joints", "elderly"]
+  },
+
+  {
+    "display_name": "Ascoril LS Syrup 100ml",
+    "manufacturer_name": "By GLENMARK PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/ascoril_ls.png](https://example.com/images/ascoril_ls.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": true,
+    "composition_short": "Levosalbutamol + Ambroxol + Guaiphenesin",
+    "keywords": ["cough", "wet cough", "mucus", "cold", "chest congestion"]
+  },
+  {
+    "display_name": "Grillinctus BM Syrup 100ml",
+    "manufacturer_name": "By FRANCO-INDIAN PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/grillinctus.png](https://example.com/images/grillinctus.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": true,
+    "composition_short": "Terbutaline + Bromhexine",
+    "keywords": ["cough", "bronchitis", "asthma", "phlegm"]
+  },
+  {
+    "display_name": "Asthalin AX Syrup 100ml",
+    "manufacturer_name": "By CIPLA",
+    "image_url": "[https://example.com/images/asthalinax.png](https://example.com/images/asthalinax.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": true,
+    "composition_short": "Levosalbutamol + Ambroxol + Guaiphenesin",
+    "keywords": ["cough", "breathing", "congestion"]
+  },
+
+  {
+    "display_name": "Benadryl DR Syrup 100ml",
+    "manufacturer_name": "By JOHNSON & JOHNSON",
+    "image_url": "[https://example.com/images/benadryl.png](https://example.com/images/benadryl.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": false,
+    "composition_short": "Dextromethorphan Hydrobromide",
+    "keywords": ["dry cough", "throat irritation", "cough suppressant"]
+  },
+  {
+    "display_name": "Ascoril D Plus Syrup 100ml",
+    "manufacturer_name": "By GLENMARK PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/ascorild.png](https://example.com/images/ascorild.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": false,
+    "composition_short": "Phenylephrine + Chlorpheniramine + Dextromethorphan",
+    "keywords": ["dry cough", "sneezing", "cold"]
+  },
+  {
+    "display_name": "TusQ DX Syrup 100ml",
+    "manufacturer_name": "By BLUE CROSS LABORATORIES",
+    "image_url": "[https://example.com/images/tusqdx.png](https://example.com/images/tusqdx.png)",
+    "pack_desc": "100ml in Bottle",
+    "is_prescription_required": false,
+    "composition_short": "Dextromethorphan + Chlorpheniramine",
+    "keywords": ["dry cough", "allergy cough", "throat pain"]
+  },
+
+  {
+    "display_name": "Volini Pain Relief Gel Tube Of 75 G",
+    "manufacturer_name": "By SUN PHARMA",
+    "image_url": "[https://example.com/images/volini.png](https://example.com/images/volini.png)",
+    "pack_desc": "75g in Tube",
+    "is_prescription_required": false,
+    "composition_short": "Diclofenac Diethylamine",
+    "keywords": ["pain relief", "back pain", "sprain", "muscle pain", "joint pain"]
+  },
+  {
+    "display_name": "Moov Strong Gel 30g",
+    "manufacturer_name": "By RECKITT BENCKISER",
+    "image_url": "[https://example.com/images/moov.png](https://example.com/images/moov.png)",
+    "pack_desc": "30g in Tube",
+    "is_prescription_required": false,
+    "composition_short": "Diclofenac Sodium",
+    "keywords": ["pain relief", "backache", "neck pain"]
+  },
+  {
+    "display_name": "Omnigel Tube Of 75g",
+    "manufacturer_name": "By CIPLA",
+    "image_url": "[https://example.com/images/omnigel.png](https://example.com/images/omnigel.png)",
+    "pack_desc": "75g in Tube",
+    "is_prescription_required": false,
+    "composition_short": "Diclofenac + Linseed Oil + Menthol",
+    "keywords": ["pain", "inflammation", "swelling", "muscular pain"]
+  },
+
+  {
+    "display_name": "Becosules Strip Of 20 Capsules",
+    "manufacturer_name": "By PFIZER",
+    "image_url": "[https://example.com/images/becosules.png](https://example.com/images/becosules.png)",
+    "pack_desc": "20 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin B Complex + Vitamin C",
+    "keywords": ["multivitamin", "mouth ulcer", "energy", "vitamin b", "supplements"]
+  },
+  {
+    "display_name": "Cobadex CZS Tablet Strip Of 15",
+    "manufacturer_name": "By GSK",
+    "image_url": "[https://example.com/images/cobadex.png](https://example.com/images/cobadex.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin B Complex + Zinc",
+    "keywords": ["energy", "hair", "skin", "weakness"]
+  },
+  {
+    "display_name": "Surbex Gold Capsule Strip Of 15",
+    "manufacturer_name": "By ABBOTT",
+    "image_url": "[https://example.com/images/surbex.png](https://example.com/images/surbex.png)",
+    "pack_desc": "15 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin B Complex + Minerals",
+    "keywords": ["vitality", "stamina", "health"]
+  },
+
+  {
+    "display_name": "Zincovit Tablet Strip Of 15",
+    "manufacturer_name": "By APEX LABORATORIES",
+    "image_url": "[https://example.com/images/zincovit.png](https://example.com/images/zincovit.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Multivitamins + Minerals + Zinc",
+    "keywords": ["immunity", "weakness", "vitamins", "zinc"]
+  },
+  {
+    "display_name": "A to Z NS Tablet Strip Of 15",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/atozns.png](https://example.com/images/atozns.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Multivitamins + Minerals",
+    "keywords": ["general health", "recovery", "fatigue"]
+  },
+  {
+    "display_name": "Supradyn Daily Tablet Strip Of 15",
+    "manufacturer_name": "By BAYER",
+    "image_url": "[https://example.com/images/supradyn.png](https://example.com/images/supradyn.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Multivitamins + Minerals",
+    "keywords": ["energy", "daily supplement", "active"]
+  },
+
+  {
+    "display_name": "Neurobion Forte Tablet Strip Of 30",
+    "manufacturer_name": "By PROCTER & GAMBLE",
+    "image_url": "[https://example.com/images/neurobion.png](https://example.com/images/neurobion.png)",
+    "pack_desc": "30 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin B1 + B6 + B12",
+    "keywords": ["nerves", "vitamin b", "tingling", "numbness"]
+  },
+  {
+    "display_name": "Nurokind Gold Capsule Strip Of 10",
+    "manufacturer_name": "By MANKIND PHARMA",
+    "image_url": "[https://example.com/images/nurokind.png](https://example.com/images/nurokind.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Methylcobalamin + Niacinamide + B6",
+    "keywords": ["diabetic", "nerve pain", "strength"]
+  },
+  {
+    "display_name": "Maxnerve Plus Capsule Strip Of 10",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/maxnerve.png](https://example.com/images/maxnerve.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Methylcobalamin + Alpha Lipoic Acid",
+    "keywords": ["nerves", "regeneration", "b12"]
+  },
+
+
+  {
+    "display_name": "Evion 400mg Capsule Strip Of 10",
+    "manufacturer_name": "By MERCK",
+    "image_url": "[https://example.com/images/evion400.png](https://example.com/images/evion400.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin E",
+    "keywords": ["skin", "hair", "muscle cramps", "antioxidant"]
+  },
+  {
+    "display_name": "Evitas 400mg Capsule Strip Of 10",
+    "manufacturer_name": "By INTAS PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/evitas.png](https://example.com/images/evitas.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin E",
+    "keywords": ["face glow", "hair loss", "vitamin e"]
+  },
+  {
+    "display_name": "E Cap 400mg Capsule Strip Of 10",
+    "manufacturer_name": "By TORRENT PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/ecap.png](https://example.com/images/ecap.png)",
+    "pack_desc": "10 Capsule(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin E",
+    "keywords": ["supplements", "skin care"]
+  },
+
+
+  {
+    "display_name": "Limcee 500mg Tablet Strip Of 15",
+    "manufacturer_name": "By ABBOTT",
+    "image_url": "[https://example.com/images/limcee.png](https://example.com/images/limcee.png)",
+    "pack_desc": "15 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin C (Ascorbic Acid)",
+    "keywords": ["vitamin c", "immunity", "skin", "chewable"]
+  },
+  {
+    "display_name": "Celin 500mg Tablet Strip Of 25",
+    "manufacturer_name": "By KOYE PHARMACEUTICALS",
+    "image_url": "[https://example.com/images/celin.png](https://example.com/images/celin.png)",
+    "pack_desc": "25 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin C",
+    "keywords": ["vitamin c", "scurvy", "immunity"]
+  },
+  {
+    "display_name": "Chewcee 500mg Tablet Strip Of 10",
+    "manufacturer_name": "By ALKEM LABORATORIES",
+    "image_url": "[https://example.com/images/chewcee.png](https://example.com/images/chewcee.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Vitamin C",
+    "keywords": ["orange flavor", "chewable", "gums"]
+  },
+
+
+  {
+    "display_name": "Digene Gel Mint Flavor 200ml",
+    "manufacturer_name": "By ABBOTT",
+    "image_url": "[https://example.com/images/digene.png](https://example.com/images/digene.png)",
+    "pack_desc": "200ml in Bottle",
+    "is_prescription_required": false,
+    "composition_short": "Antacid + Antigas",
+    "keywords": ["acidity", "gas", "bloating", "stomach relief"]
+  },
+  {
+    "display_name": "Gelusil MPS Liquid 200ml",
+    "manufacturer_name": "By PFIZER",
+    "image_url": "[https://example.com/images/gelusil.png](https://example.com/images/gelusil.png)",
+    "pack_desc": "200ml in Bottle",
+    "is_prescription_required": false,
+    "composition_short": "Aluminium Hydroxide + Magnesium + Dimethicone",
+    "keywords": ["acidity", "heartburn", "ulcer"]
+  },
+  {
+    "display_name": "Mucaine Gel Mint 350ml",
+    "manufacturer_name": "By PFIZER",
+    "image_url": "[https://example.com/images/mucaine.png](https://example.com/images/mucaine.png)",
+    "pack_desc": "350ml in Bottle",
+    "is_prescription_required": true,
+    "composition_short": "Oxetacaine + Aluminium Hydroxide",
+    "keywords": ["severe acidity", "ulcer pain", "numbing"]
+  },
+
+  {
+    "display_name": "Allegra 120mg Tablet Strip Of 10",
+    "manufacturer_name": "By SANOFI",
+    "image_url": "[https://example.com/images/allegra.png](https://example.com/images/allegra.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Fexofenadine (120mg)",
+    "keywords": ["allergy", "sneezing", "skin rash", "non-drowsy"]
+  },
+  {
+    "display_name": "Histafree 120mg Tablet Strip Of 10",
+    "manufacturer_name": "By MANKIND PHARMA",
+    "image_url": "[https://example.com/images/histafree.png](https://example.com/images/histafree.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Fexofenadine (120mg)",
+    "keywords": ["itching", "hives", "nose block"]
+  },
+  {
+    "display_name": "Fexy 120mg Tablet Strip Of 10",
+    "manufacturer_name": "By LUPIN",
+    "image_url": "[https://example.com/images/fexy.png](https://example.com/images/fexy.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": true,
+    "composition_short": "Fexofenadine (120mg)",
+    "keywords": ["allergy", "seasonal allergy"]
+  },
+
+
+  {
+    "display_name": "Cetzine Tablet Strip Of 10",
+    "manufacturer_name": "By DR REDDY'S",
+    "image_url": "[https://example.com/images/cetzine.png](https://example.com/images/cetzine.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Cetirizine (10mg)",
+    "keywords": ["allergy", "cold", "runny nose"]
+  },
+  {
+    "display_name": "Okacet Tablet Strip Of 10",
+    "manufacturer_name": "By CIPLA",
+    "image_url": "[https://example.com/images/okacet.png](https://example.com/images/okacet.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Cetirizine (10mg)",
+    "keywords": ["itching", "cold", "sneezing"]
+  },
+  {
+    "display_name": "Zyrtec Tablet Strip Of 10",
+    "manufacturer_name": "By DR REDDY'S",
+    "image_url": "[https://example.com/images/zyrtec.png](https://example.com/images/zyrtec.png)",
+    "pack_desc": "10 Tablet(s) in Strip",
+    "is_prescription_required": false,
+    "composition_short": "Cetirizine (10mg)",
+    "keywords": ["allergy", "watery eyes"]
+  }
+]

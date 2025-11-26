@@ -7,6 +7,7 @@ const medicineRoutes = require('./routes/medicines');
 const orderRoutes = require('./routes/orders');
 const pharmacyRoutes = require('./routes/pharmacies');
 const stockRoutes = require('./routes/stock');
+const productsRouter = require('./routes/products');
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use('/api/medicines', medicineRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/pharmacies', pharmacyRoutes);
 app.use('/api/stock', stockRoutes);
+app.use('/api/products', productsRouter);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Medicine Availability System API Running (Node/Mongo)' });

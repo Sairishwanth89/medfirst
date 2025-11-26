@@ -13,7 +13,7 @@
             <div class="logo"><i class="fas fa-heartbeat"></i> MediFind Partner</div>
             <div class="nav-actions">
                 <span id="pharmacy-name" style="font-weight: 600;">My Pharmacy</span>
-                <a href="#" id="logout-btn" class="nav-item" style="color: #e74c3c;">Logout</a>
+                <a href="#" id="logout-btn" class="nav-item" style="color: #e74c3c; cursor: pointer;">Logout</a>
             </div>
         </div>
     </header>
@@ -72,15 +72,34 @@
             <form id="add-med-form">
                 <div class="pe-input-group">
                     <label>Medicine Name</label>
-                    <input type="text" id="med-name" required>
+                    <input type="text" id="med-name" required placeholder="e.g., Dolo 650">
                 </div>
                 <div class="pe-input-group">
-                    <label>Price</label>
-                    <input type="number" id="med-price" required>
+                    <label>Generic Name</label>
+                    <input type="text" id="med-generic" placeholder="e.g., Paracetamol">
                 </div>
                 <div class="pe-input-group">
-                    <label>Quantity</label>
-                    <input type="number" id="med-qty" required>
+                    <label>Manufacturer</label>
+                    <input type="text" id="med-manufacturer" placeholder="e.g., Micro Labs">
+                </div>
+                <div class="pe-input-group">
+                    <label>Description</label>
+                    <input type="text" id="med-desc" placeholder="Short description">
+                </div>
+                <div class="pe-input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label>Price</label>
+                        <input type="number" id="med-price" step="0.01" required>
+                    </div>
+                    <div>
+                        <label>Quantity</label>
+                        <input type="number" id="med-qty" required>
+                    </div>
+                </div>
+                <div class="pe-input-group">
+                     <label>
+                        <input type="checkbox" id="med-rx"> Requires Prescription
+                     </label>
                 </div>
                 <button type="submit" class="pe-btn-primary">Add to Inventory</button>
             </form>

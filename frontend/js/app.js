@@ -1,6 +1,39 @@
 const API_URL = 'http://localhost:8000/api';
 let authToken = localStorage.getItem('authToken');
-let currentUser = JSON.parse(localStorage.getItem('currentUser'));
+let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+// expose globals so other pages can read auth state and call logout
+function syncGlobals() {
+    if (!window.MediFind) window.MediFind = {};
+    window.MediFind.API_URL = API_URL;
+    window.MediFind.authToken = authToken;
+    window.MediFind.currentUser = currentUser;
+    window.MediFind.showAlert = window.MediFind.showAlert || ((msg) => alert(msg));
+
+    // central setter used by login/logout across pages
+    window.MediFind.setAuth = (token, user) => {
+        authToken = token;
+        currentUser = user;
+        if (token) {
+            localStorage.setItem('authToken', token);
+            localStorage.setItem('currentUser', JSON.stringify(user));
+        } else {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+        }
+        window.MediFind.authToken = authToken;
+        window.MediFind.currentUser = currentUser;
+        try { if (typeof updateAuthUI === 'function') updateAuthUI(); } catch (e) {}
+    };
+
+    // reliable centralized logout
+    window.MediFind.logout = () => {
+        window.MediFind.setAuth(null, null);
+        // keep other localStorage keys (cart) intact
+        window.location.href = 'index.html';
+    };
+}
+syncGlobals();
 
 // Initialize Cart from LocalStorage
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -12,8 +45,11 @@ function updateAuthUI() {
         loginBtn.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.username}`;
         loginBtn.onclick = (e) => { e.preventDefault(); logout(); };
     } else {
-        loginBtn.innerHTML = `<i class="far fa-user"></i> Hello, Log in`;
-        loginBtn.onclick = (e) => { e.preventDefault(); openAuthModal(); };
+        const loginBtn = document.getElementById('login-btn');
+        if(loginBtn) {
+            loginBtn.innerHTML = `<i class="far fa-user"></i> Hello, Log in`;
+            loginBtn.onclick = (e) => { e.preventDefault(); openAuthModal(); };
+        }
     }
     updateCartUI();
 }
@@ -53,34 +89,13 @@ window.addToCart = function(medicineId, name, price, pharmacyId) {
 
 // Function to open Cart (Mockup for now)
 window.openCart = function() {
-    if (cart.length === 0) {
-        alert("Your cart is empty.");
-        return;
-    }
-    
-    let cartDetails = "Your Cart:\n";
-    let total = 0;
-    cart.forEach(item => {
-        cartDetails += `${item.name} x ${item.quantity} - $${(item.price * item.quantity).toFixed(2)}\n`;
-        total += item.price * item.quantity;
-    });
-    cartDetails += `\nTotal: $${total.toFixed(2)}`;
-    
-    if(confirm(cartDetails + "\n\nProceed to Checkout?")) {
-        // Trigger Order Placement (Requires Auth)
-        if (!authToken) {
-            alert("Please login to checkout.");
-            openAuthModal();
-        } else {
-            placeOrder();
-        }
-    }
+    window.location.href = 'cart.html';
 }
 
 async function placeOrder() {
     if (cart.length === 0) return;
 
-    const pharmacyId = cart[0].pharmacyId; // Simplification for demo: assumes single pharmacy order
+    const pharmacyId = cart[0].pharmacyId; 
     
     const items = cart.map(item => ({
         medicine_id: item.medicineId,
@@ -89,7 +104,7 @@ async function placeOrder() {
 
     const orderPayload = {
         pharmacy_id: pharmacyId,
-        delivery_address: "User Default Address", // In real app, prompt user
+        delivery_address: "User Default Address", 
         notes: "Online Order",
         items: items
     };
@@ -151,15 +166,22 @@ if(loginForm) {
             localStorage.setItem('currentUser', JSON.stringify(data.user));
             authToken = data.access_token; currentUser = data.user;
             
+            syncGlobals(); // <-- keep window.MediFind updated
             updateAuthUI();
             closeAuthModal();
             alert(`Welcome back, ${data.user.username}!`);
             
-            // --- ROLE REDIRECTION LOGIC ---
-            // This ensures users go to their specific dashboard
-            if(data.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
-            else if(data.user.role === 'delivery') window.location.href = 'delivery.html';
-            else window.location.href = 'index.html'; // Patient stays here
+            // --- FIXED REDIRECTION LOGIC ---
+            console.log("User Role:", data.user.role); // Debugging line
+            
+            if(data.user.role === 'pharmacy') {
+                window.location.href = 'pharmacy.html';
+            } else if(data.user.role === 'delivery') {
+                window.location.href = 'delivery.html';
+            } else {
+                // For patients or if role is undefined, stay on index but reload to update UI
+                window.location.href = 'index.html'; 
+            }
             
         } catch(err) { alert(err.message); }
     });
@@ -175,7 +197,7 @@ if(signupForm) {
             email: document.getElementById('reg-email').value,
             username: document.getElementById('reg-username').value,
             password: document.getElementById('reg-password').value,
-            role: document.getElementById('reg-role').value
+            role: document.getElementById('reg-role').value // Ensure this ID matches HTML
         };
         
         try {
@@ -184,14 +206,34 @@ if(signupForm) {
                 body: JSON.stringify(data)
             });
             if(!res.ok) throw new Error('Signup failed');
-            alert('Account created! Please login.');
-            showLogin();
+            
+            // Auto-login after signup
+             const responseData = await res.json();
+             if(responseData.access_token) {
+                 localStorage.setItem('authToken', responseData.access_token);
+                 localStorage.setItem('currentUser', JSON.stringify(responseData.user));
+                 authToken = responseData.access_token; currentUser = responseData.user;
+
+                 syncGlobals(); // <-- keep window.MediFind updated
+                 updateAuthUI();
+                 closeAuthModal();
+                 alert('Account created! Redirecting...');
+                 
+                 // Redirect based on role
+                 if(responseData.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
+                 else if(responseData.user.role === 'delivery') window.location.href = 'delivery.html';
+                 else window.location.href = 'index.html';
+             }
+
         } catch(err) { alert(err.message); }
     });
 }
 
 function logout() {
     localStorage.clear();
+    authToken = null;
+    currentUser = null;
+    syncGlobals(); // clear global state
     location.href = 'index.html';
 }
 
@@ -223,7 +265,6 @@ function renderResults(data) {
     data.forEach(item => {
         const div = document.createElement('div');
         div.className = 'medicine-card';
-        // Use onclick to call addToCart with item details
         div.innerHTML = `
             <h4>${item.name}</h4>
             <p style="font-size:13px; color:#777;">${item.manufacturer || 'Generic'}</p>
@@ -243,6 +284,10 @@ window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.showLogin = showLogin;
 window.showSignup = showSignup;
+window.openCart = function() {
+    window.location.href = 'cart.html';
+}
 
 // Init
 updateAuthUI();
+
