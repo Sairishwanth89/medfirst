@@ -1,38 +1,44 @@
+require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const authRoutes = require('./routes/auth');
-const medicineRoutes = require('./routes/medicines');
-const orderRoutes = require('./routes/orders');
-const pharmacyRoutes = require('./routes/pharmacies');
-const stockRoutes = require('./routes/stock');
-const productsRouter = require('./routes/products');
-
-dotenv.config();
-
-// Connect to MongoDB
-connectDB();
+const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+
+// Connect Database
+connectDB().then(() => {
+  console.log('✓ Database connected successfully');
+}).catch(err => {
+  console.error('✗ Database connection failed:', err);
+  process.exit(1);
+});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/medicines', medicineRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/pharmacies', pharmacyRoutes);
-app.use('/api/stock', stockRoutes);
-app.use('/api/products', productsRouter);
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/products', require('./routes/products'));
+app.use('/api/medicines', require('./routes/medicines'));
+app.use('/api/orders', require('./routes/orders'));
+app.use('/api/pharmacies', require('./routes/pharmacies'));
+app.use('/api/stock', require('./routes/stock'));
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Medicine Availability System API Running (Node/Mongo)' });
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'Backend is running', timestamp: new Date() });
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err.stack);
+  res.status(500).json({ error: 'Something went wrong!', message: err.message });
+});
+
+const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
 });

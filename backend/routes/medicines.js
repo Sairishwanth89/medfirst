@@ -189,4 +189,21 @@ async function searchProductsCollection(q) {
   }
 }
 
+// Get all medicines
+router.get('/', async (req, res) => {
+  try {
+    const medicines = await Medicine.find().limit(50);
+    res.json({
+      success: true,
+      count: medicines.length,
+      results: medicines
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
