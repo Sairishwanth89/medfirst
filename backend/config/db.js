@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   try {
-    const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/medifind';
+    // FIX: Check for MONGO_URI (used in docker-compose) OR MONGODB_URI
+    const mongoURI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/medifind';
     
     console.log('🔄 Connecting to MongoDB at:', mongoURI);
     
@@ -15,11 +16,9 @@ const connectDB = async () => {
 
     console.log(`✓ MongoDB Connected: ${conn.connection.host}`);
     console.log(`✓ Database: ${conn.connection.name}`);
-    
     return conn;
   } catch (error) {
     console.error(`✗ MongoDB Connection Error: ${error.message}`);
-    console.error('Make sure MongoDB is running on localhost:27017');
     throw error;
   }
 };

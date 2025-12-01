@@ -1,3 +1,4 @@
+// backend/routes/medicines.js
 const express = require('express');
 const mongoose = require('mongoose');
 const Medicine = require('../models/Medicine');
@@ -16,7 +17,7 @@ router.get('/search', async (req, res) => {
 
   try {
     // use ES if available
-    const { body } = await esClient.search({
+    const response = await esClient.search({
       index: ELASTICSEARCH_INDEX,
       size: 50,
       body: {
@@ -30,7 +31,11 @@ router.get('/search', async (req, res) => {
       }
     });
 
-    const ids = (body.hits?.hits || []).map(h => h._id);
+    // Handle v7 vs v8 response structure safely
+    // In some v8 clients, response IS the body, in others response.body exists.
+    const hits = response.hits || response.body?.hits; 
+    const ids = (hits?.hits || []).map(h => h._id);
+
     let results = [];
 
     if (ids.length) {
@@ -83,7 +88,7 @@ router.get('/search', async (req, res) => {
 
     return res.json({ results });
   } catch (err) {
-    console.warn('Search failed, attempting Mongo fallback:', err?.message || err);
+    console.warn('Search failed, attempting Mongo fallback:', err.message);
     try {
       // final fallback: regex search if ES or the above steps fail
       const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
@@ -109,16 +114,12 @@ router.get('/search', async (req, res) => {
         }))
       });
     } catch (finalErr) {
-      console.error('Final search fallback failed:', finalErr?.message || finalErr);
+      console.error('Final search fallback failed:', finalErr.message);
       return res.status(500).json({ error: 'Search failed' });
     }
   }
 });
 
-/**
- * GET /api/medicines/:id
- * Only match valid 24-hex ObjectIds to avoid catching 'search' or other words.
- */
 router.get('/:id([0-9a-fA-F]{24})', async (req, res) => {
   const { id } = req.params;
   if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'Invalid id' });
@@ -144,50 +145,10 @@ router.get('/:id([0-9a-fA-F]{24})', async (req, res) => {
       } : null
     });
   } catch (err) {
-    console.error('Get medicine by id error:', err?.message || err);
+    console.error('Get medicine by id error:', err.message);
     return res.status(500).json({ error: 'Failed to fetch medicine' });
   }
 });
-
-/**
- * Search products collection directly (for admin or advanced search)
- * @param {string} q Search term
- * @returns {Promise<Array>} Array of product objects
- */
-async function searchProductsCollection(q) {
-  const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'i');
-  // try text search first if index exists
-  try {
-    const col = db.collection('products');
-    // text search if supported, otherwise regex fallback
-    const textMatches = await col.find({ $text: { $search: q } }).limit(50).toArray().catch(() => []);
-    if (textMatches && textMatches.length) return textMatches.map(d => ({
-      id: d._id,
-      name: d.display_name || d.name || '',
-      manufacturer: d.manufacturer_name || '',
-      description: d.pack_desc || d.description || '',
-      extra: d.keywords || []
-    }));
-    // regex fallback
-    const regexMatches = await col.find({
-      $or: [
-        { display_name: regex },
-        { manufacturer_name: regex },
-        { composition_short: regex },
-        { keywords: regex }
-      ]
-    }).limit(50).toArray();
-    return regexMatches.map(d => ({
-      id: d._id,
-      name: d.display_name || d.name || '',
-      manufacturer: d.manufacturer_name || '',
-      description: d.pack_desc || d.description || '',
-      extra: d.keywords || []
-    }));
-  } catch (e) {
-    return [];
-  }
-}
 
 // Get all medicines
 router.get('/', async (req, res) => {

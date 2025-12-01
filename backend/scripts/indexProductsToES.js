@@ -1,3 +1,4 @@
+// backend/scripts/indexProductsToES.js
 // Bulk-index products from MongoDB -> Elasticsearch (safe, resumable)
 const mongoose = require('mongoose');
 
@@ -24,7 +25,9 @@ async function main() {
     }
 
     // index management
-    const exists = (await esClient.indices.exists({ index: INDEX })).body;
+    const existsResponse = await esClient.indices.exists({ index: INDEX });
+    const exists = existsResponse === true || existsResponse.body === true;
+
     if (RECREATE && exists) {
       console.log(`Deleting existing index "${INDEX}"`);
       await esClient.indices.delete({ index: INDEX });
@@ -86,7 +89,9 @@ async function main() {
       if (bulk.length / 2 >= BATCH_SIZE) {
         batchNum++;
         const resp = await esClient.bulk({ refresh: true, body: bulk });
-        if (resp.body?.errors) {
+        // Handle undefined body in v8 if applicable
+        const hasErrors = resp.errors || resp.body?.errors;
+        if (hasErrors) {
           console.warn('Bulk response contained errors on batch', batchNum);
         }
         processed += bulk.length / 2;
@@ -98,18 +103,22 @@ async function main() {
     if (bulk.length) {
       batchNum++;
       const resp = await esClient.bulk({ refresh: true, body: bulk });
-      if (resp.body?.errors) console.warn('Final bulk contained errors');
+      const hasErrors = resp.errors || resp.body?.errors;
+      if (hasErrors) console.warn('Final bulk contained errors');
       processed += bulk.length / 2;
       console.log(`Flushed final batch #${batchNum} — processed ${processed}/${total}`);
     }
 
-    // verify - refresh + robust count handling
+    // verify
     await esClient.indices.refresh({ index: INDEX }).catch(() => {});
     const countResp = await esClient.count({ index: INDEX }).catch(err => {
       console.warn('esClient.count error:', err?.message || err);
       return null;
     });
-    const esCount = (countResp && ((countResp.body && countResp.body.count) ?? countResp.count)) ?? 0;
+    
+    // Safely get count
+    const esCount = (countResp && (countResp.count ?? countResp.body?.count)) ?? 0;
+    
     console.log(`Elasticsearch index "${INDEX}" contains ${esCount} documents`);
     
     await mongoose.disconnect();

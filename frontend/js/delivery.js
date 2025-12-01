@@ -1,20 +1,3 @@
-/*
-  Enhancements:
-  - Robust auth fallback (use window.MediFind or localStorage)
-  - Current orders list
-  - Two history panels: delivery boy and customer care
-  - Order details modal
-  - Update status updates in-memory mock and re-renders
-*/
-
-// Prefer window.MediFind (set by app.js) but fall back to localStorage for auth
-const API_URL = window.MediFind?.API_URL || 'http://localhost:8000/api';
-const authToken = window.MediFind?.authToken || localStorage.getItem('authToken');
-const currentUser = window.MediFind?.currentUser || JSON.parse(localStorage.getItem('currentUser') || 'null');
-const showAlert = window.MediFind?.showAlert || ((msg) => alert(msg));
-
-// make sure DOM exists before touching elements (script is included at end of body,
-// but using DOMContentLoaded avoids edge cases)
 document.addEventListener('DOMContentLoaded', () => {
     // Prefer window.MediFind but fall back to localStorage
     const API_URL = window.MediFind?.API_URL || 'http://localhost:8000/api';
@@ -31,28 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // update header UI
     const driverNameEl = document.getElementById('driver-name');
     if (driverNameEl) driverNameEl.textContent = currentUser.username || currentUser.full_name || 'Driver';
+    
+    // Logout Logic
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
-        // remove any previous handlers and attach a reliable listener
-        logoutBtn.replaceWith(logoutBtn.cloneNode(true));
-        const btn = document.getElementById('logout-btn') || document.querySelector('#logout-btn');
-        if (btn) {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                // use central logout if provided
-                if (window.MediFind?.logout) {
-                    window.MediFind.logout();
-                    return;
-                }
-                // fallback: clear auth keys and redirect
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.MediFind?.logout) {
+                window.MediFind.logout();
+            } else {
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('currentUser');
                 window.location.href = 'index.html';
-            });
-        }
+            }
+        });
     }
 
-    // Mock orders — replace with API fetch when ready
+    // Mock orders
     let mockOrders = [
         { id: 201, address: "123 Main St, Mumbai", status: "ready_for_pickup", customer: { name: "A. Sharma", phone: "98765 43210" }, assigned_to: "vikram", source: "web" },
         { id: 205, address: "45 Sea View, Mumbai", status: "out_for_delivery", customer: { name: "R. Mehta", phone: "99887 77665" }, assigned_to: currentUser.username, source: "delivery" },
@@ -66,25 +44,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderOrderCard(order, extraButtons = '') {
+        const isMini = !extraButtons;
+        
+        if (isMini) {
+            return `
+                <div class="mini-card" onclick="showOrderDetails(${order.id})" style="cursor:pointer">
+                    <div class="mini-info">
+                        <div>Order #${order.id}</div>
+                        <div>${order.address.substring(0, 25)}...</div>
+                    </div>
+                    <div class="mini-status">
+                        ${order.status === 'delivered' ? 
+                            '<i class="fas fa-check-circle text-green"></i>' : 
+                            '<i class="fas fa-times-circle text-red"></i>'}
+                    </div>
+                </div>
+            `;
+        }
+
         return `
-            <div class="order-card">
-                <div class="order-header">
-                    <div class="order-left">
-                        <div class="order-id">#${order.id}</div>
-                        <div class="order-address">${order.address}</div>
+            <div class="d-card">
+                <div class="d-card-header">
+                    <div class="d-card-id">Order #${order.id}</div>
+                    <div class="d-badge ${order.status}">${formatStatusLabel(order.status)}</div>
+                </div>
+                <div class="d-card-body">
+                    <div class="d-icon-box">
+                        <i class="fas fa-map-marker-alt"></i>
                     </div>
-                    <div class="order-right">
-                        <div class="status-badge ${order.status}">${formatStatusLabel(order.status)}</div>
+                    <div class="d-info">
+                        <h4>${order.customer.name}</h4>
+                        <p>${order.address}</p>
+                        <p style="margin-top:4px; font-size:0.8rem">
+                            <i class="fas fa-phone-alt" style="font-size:0.7rem"></i> ${order.customer.phone}
+                        </p>
                     </div>
                 </div>
-                <div class="order-meta">
-                    <div><strong>Customer:</strong> ${order.customer.name} • ${order.customer.phone}</div>
-                    <div><strong>Assigned:</strong> ${order.assigned_to || 'Unassigned'}</div>
-                    <div><strong>Source:</strong> ${order.source}</div>
-                </div>
-                <div class="order-actions">
-                    <button class="btn btn-sm" onclick="showOrderDetails(${order.id})">Details</button>
-                    ${extraButtons}
+                <div class="d-actions">
+                    <button class="action-btn btn-details" onclick="showOrderDetails(${order.id})">
+                        Details
+                    </button>
+                    ${extraButtons.replace('class="btn btn-primary btn-sm"', 'class="action-btn btn-start"')
+                                  .replace('class="btn btn-success btn-sm"', 'class="action-btn btn-complete"')}
                 </div>
             </div>
         `;
@@ -112,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }).join('') : '<div class="placeholder">No active assignments</div>';
 
         // delivery history
-        const deliveryHistory = mockOrders.filter(o => o.assigned_to === currentUser.username && !(o.status === 'ready_for_pickup' || o.status === 'out_for_delivery'));
+        const deliveryHistory = mockOrders.filter(o => o.assigned_to === currentUser.username && (o.status === 'delivered' || o.status === 'cancelled'));
         deliveryHistoryEl.innerHTML = deliveryHistory.length ? deliveryHistory.map(o => renderOrderCard(o)).join('') : '<div class="placeholder">No delivery history yet</div>';
 
         // customer care history
@@ -122,21 +123,37 @@ document.addEventListener('DOMContentLoaded', () => {
         updateStats();
     }
 
+    // --- GLOBAL MODAL FUNCTIONS ---
     window.showOrderDetails = function(id) {
         const order = mockOrders.find(o => o.id === id);
         if (!order) return showAlert('Order not found');
+        
+        const modal = document.getElementById('order-details-modal');
         document.getElementById('modal-order-title').textContent = `Order #${order.id} — ${formatStatusLabel(order.status)}`;
         document.getElementById('modal-order-body').innerHTML = `
-            <p><strong>Address:</strong> ${order.address}</p>
-            <p><strong>Customer:</strong> ${order.customer.name} • ${order.customer.phone}</p>
-            <p><strong>Assigned to:</strong> ${order.assigned_to || 'Unassigned'}</p>
-            <p style="margin-top:10px;color:#666;">Notes: demo data. Replace with real backend fields.</p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; font-size:0.9rem;">
+                <div>
+                    <label style="color:#64748b; font-size:0.8rem; font-weight:600;">Customer</label>
+                    <div style="font-weight:600;">${order.customer.name}</div>
+                    <div>${order.customer.phone}</div>
+                </div>
+                 <div>
+                    <label style="color:#64748b; font-size:0.8rem; font-weight:600;">Status</label>
+                    <div style="text-transform:capitalize;">${order.status.replace(/_/g,' ')}</div>
+                </div>
+                <div style="grid-column:1/-1;">
+                     <label style="color:#64748b; font-size:0.8rem; font-weight:600;">Delivery Address</label>
+                     <div style="background:#f8fafc; padding:10px; border-radius:6px; margin-top:4px;">${order.address}</div>
+                </div>
+            </div>
         `;
-        document.getElementById('order-details-modal').style.display = 'flex';
+        // Explicitly set display flex to show
+        modal.style.display = 'flex';
     };
 
     window.closeOrderModal = function() {
-        document.getElementById('order-details-modal').style.display = 'none';
+        const modal = document.getElementById('order-details-modal');
+        if(modal) modal.style.display = 'none';
     };
 
     window.updateStatus = (id, status) => {

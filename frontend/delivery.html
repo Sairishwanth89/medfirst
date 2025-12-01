@@ -4,78 +4,101 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Delivery Dashboard - MediFind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="app-bg">
-    <header class="pe-header">
+<body class="delivery-body">
+    
+    <header class="glass-header">
         <div class="container header-content">
-            <div class="logo"><i class="fas fa-truck"></i> MediFind Delivery</div>
-            <div class="nav-actions">
-                <div class="driver-info">
+            <div class="brand">
+                <i class="fas fa-truck-medical"></i> MediFind <span class="badge-role">Delivery</span>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <span class="greeting">Hello,</span>
                     <span id="driver-name" class="driver-name">Driver</span>
-                    <small id="driver-role" class="driver-role">Delivery</small>
                 </div>
-                <button id="logout-btn" type="button" class="btn btn-ghost" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                <button id="logout-btn" class="logout-btn" onclick="logout()">
+                    <i class="fas fa-power-off"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="container" style="padding-top:28px;">
-        <section class="dashboard-grid">
-            <div class="left-column">
-                <div class="panel card">
-                    <div class="panel-header">
-                        <h2>Current Assignments</h2>
-                        <p class="muted">Active orders assigned to you</p>
-                    </div>
-                    <div id="current-container" class="panel-body">
-                        <div class="placeholder">Checking assignments...</div>
-                    </div>
+    <main class="container dashboard-wrapper">
+        
+        <section class="stats-overview">
+            <div class="stat-card active-card">
+                <div class="icon-circle"><i class="fas fa-box-open"></i></div>
+                <div class="stat-info">
+                    <h3>Active</h3>
+                    <h1 id="stat-active">0</h1>
                 </div>
+            </div>
+            <div class="stat-card transit-card">
+                <div class="icon-circle"><i class="fas fa-motorcycle"></i></div>
+                <div class="stat-info">
+                    <h3>On Route</h3>
+                    <h1 id="stat-out">0</h1>
+                </div>
+            </div>
+            <div class="stat-card done-card">
+                <div class="icon-circle"><i class="fas fa-check-circle"></i></div>
+                <div class="stat-info">
+                    <h3>Delivered</h3>
+                    <h1 id="stat-delivered">0</h1>
+                </div>
+            </div>
+        </section>
 
-                <div class="panel card" style="margin-top:18px;">
-                    <div class="panel-header">
-                        <h3>Order History</h3>
-                        <p class="muted">Delivery & Customer Care history</p>
-                    </div>
-                    <div class="history-grid">
-                        <div>
-                            <h4>Delivery History</h4>
-                            <div id="delivery-history" class="history-list">
-                                <div class="placeholder">No delivery history yet</div>
-                            </div>
-                        </div>
-                        <div>
-                            <h4>Customer Care History</h4>
-                            <div id="customer-history" class="history-list">
-                                <div class="placeholder">No customer-care flagged orders</div>
-                            </div>
-                        </div>
+        <div class="main-grid">
+            
+            <div class="section-column">
+                <div class="section-header">
+                    <h2><i class="fas fa-clipboard-list"></i> Current Assignments</h2>
+                    <span class="live-indicator">Live Updates</span>
+                </div>
+                <div id="current-container" class="cards-stack">
+                    <div class="placeholder-state">
+                        <div class="spinner"></div>
+                        <p>Syncing assignments...</p>
                     </div>
                 </div>
             </div>
 
-            <aside class="right-column card panel">
-                <div class="panel-header">
-                    <h3>Quick Summary</h3>
+            <div class="section-column">
+                <div class="section-header">
+                    <h2><i class="fas fa-history"></i> Recent History</h2>
                 </div>
-                <div id="stats" class="panel-body stats">
-                    <div class="stat-row"><div class="stat-name">Total Active</div><div id="stat-active" class="stat-value">0</div></div>
-                    <div class="stat-row"><div class="stat-name">Out for Delivery</div><div id="stat-out" class="stat-value">0</div></div>
-                    <div class="stat-row"><div class="stat-name">Delivered</div><div id="stat-delivered" class="stat-value">0</div></div>
+                
+                <div class="history-tabs">
+                    <div class="history-group">
+                        <h4 class="group-title">My Deliveries</h4>
+                        <div id="delivery-history" class="history-list">
+                            </div>
+                    </div>
+
+                    <div class="history-group mt-4">
+                        <h4 class="group-title">Customer Care</h4>
+                        <div id="customer-history" class="history-list">
+                            </div>
+                    </div>
                 </div>
-            </aside>
-        </section>
+            </div>
+        </div>
     </main>
 
-    <div id="order-details-modal" class="modal-backdrop" style="display:none; align-items:center; justify-content:center;">
-        <div class="card modal-card">
-            <button class="modal-close" onclick="closeOrderModal()">✕</button>
-            <h3 id="modal-order-title" style="margin-top:10px">Order #</h3>
-            <div id="modal-order-body" style="margin-top:12px; color:#444;"></div>
-            <div style="margin-top:18px; display:flex; justify-content:flex-end;">
-                <button class="btn" onclick="closeOrderModal()">Close</button>
+    <div id="order-details-modal" class="modal-backdrop" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-order-title">Order Details</h3>
+                <button class="modal-close" onclick="closeOrderModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="modal-order-body" class="modal-body"></div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeOrderModal()">Close</button>
             </div>
         </div>
     </div>
