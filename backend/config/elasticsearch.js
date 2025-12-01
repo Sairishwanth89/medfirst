@@ -1,6 +1,6 @@
 const { Client } = require('@elastic/elasticsearch');
 
-const ES_HOST = process.env.ELASTICSEARCH_HOST || 'elasticsearch';
+const ES_HOST = process.env.ELASTICSEARCH_HOST || 'medicine-elasticsearch';
 const ES_PORT = process.env.ELASTICSEARCH_PORT || 9200;
 const ES_USER = process.env.ELASTICSEARCH_USERNAME || '';
 const ES_PASS = process.env.ELASTICSEARCH_PASSWORD || '';

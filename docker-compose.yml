@@ -74,7 +74,7 @@ services:
       - MONGO_URI=mongodb://mongo:27017/medifind
       - SECRET_KEY=${SECRET_KEY}
       - REDIS_HOST=redis
-      - ELASTICSEARCH_HOST=elasticsearch
+      - ELASTICSEARCH_HOST=medicine-elasticsearch
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_USER=guest
       - RABBITMQ_PASS=guest
