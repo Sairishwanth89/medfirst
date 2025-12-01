@@ -41,14 +41,16 @@ let cart = JSON.parse(localStorage.getItem('cart')) || [];
 // Auth UI Updates
 function updateAuthUI() {
     const loginBtn = document.getElementById('login-btn');
-    if (authToken && currentUser) {
-        loginBtn.innerHTML = `<i class="fas fa-user-circle"></i> ${currentUser.username}`;
-        loginBtn.onclick = (e) => { e.preventDefault(); logout(); };
-    } else {
-        const loginBtn = document.getElementById('login-btn');
-        if(loginBtn) {
-            loginBtn.innerHTML = `<i class="far fa-user"></i> Hello, Log in`;
-            loginBtn.onclick = (e) => { e.preventDefault(); openAuthModal(); };
+    const cartCountEl = document.getElementById('cart-count');
+    
+    if (loginBtn) {
+        if (authToken && currentUser) {
+            loginBtn.innerHTML = `<i class="fas fa-user"></i> Hello, ${currentUser.name || 'User'}`;
+            loginBtn.onclick = null;
+        } else {
+            // Reset to "Hello, Log in" when logged out
+            loginBtn.innerHTML = '<i class="fas fa-user"></i> Hello, Log in';
+            loginBtn.onclick = openAuthModal;
         }
     }
     updateCartUI();
@@ -230,11 +232,28 @@ if(signupForm) {
 }
 
 function logout() {
-    localStorage.clear();
+    // Clear all stored user data from localStorage
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('cart');
+    sessionStorage.clear();
+    
+    // Reset global variables immediately
     authToken = null;
     currentUser = null;
-    syncGlobals(); // clear global state
-    location.href = 'index.html';
+    cart = [];
+    
+    // Update UI before redirect
+    updateAuthUI();
+    
+    // Redirect to home page
+    setTimeout(() => {
+        window.location.href = 'index.html';
+    }, 100);
 }
 
 // --- Search Logic ---
