@@ -1,118 +1,131 @@
 (function () {
   const API = window.MediFind?.API_URL || 'http://localhost:8000/api';
-  const LIST_ENDPOINT = `${API}/products`;
+  const PRODUCTS_ENDPOINT = `${API}/products`;
   const SEARCH_ENDPOINT = `${API}/products/search`;
 
-  function escapeHtml(str = '') {
-    return String(str)
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-
   async function fetchProductById(id) {
-    const res = await fetch(`${LIST_ENDPOINT}/${id}`);
-    if (!res.ok) throw new Error(`Product ${id} not found (status ${res.status})`);
+    const res = await fetch(`${PRODUCTS_ENDPOINT}/${id}`);
+    if (!res.ok) throw new Error(`Product not found`);
     return res.json();
   }
 
   function renderProduct(p) {
-    const loader = document.getElementById('loader');
-    const content = document.getElementById('product-content');
-    if (loader) loader.style.display = 'none';
-    if (content) content.style.display = 'block';
+    document.getElementById('loader').style.display = 'none';
+    document.getElementById('product-content').style.display = 'block';
 
-    const setText = (id, value) => {
-      const el = document.getElementById(id);
-      if (el) el.innerText = value ?? '';
+    const setText = (id, val) => {
+        const el = document.getElementById(id);
+        if(el) el.textContent = val || '';
     };
 
-    setText('crumb-name', p.name);
-    setText('p-name', p.name);
-    setText('box-name', p.name);
-    setText('p-manufacturer', p.manufacturer || 'Generic');
+    // Basic Info
+    const title = p.name || p.display_name || 'Unknown';
+    setText('crumb-name', title);
+    setText('p-name', title);
+    setText('p-manufacturer', p.manufacturer || p.manufacturer_name || 'Generic');
+    setText('p-composition', p.composition || p.composition_short || 'Composition not available');
+    
+    // Image
+    let img = p.image_url || '';
+    if(img.includes('(')) img = img.match(/\((.*?)\)/)[1]; // Clean markdown
+    if(!img || img.includes('example.com')) img = 'https://img.freepik.com/free-vector/medical-healthcare-blue-color-cross-background_1017-26807.jpg';
+    document.getElementById('p-image').src = img;
 
-    const price = `₹${Number(p.unit_price ?? 0).toFixed(2)}`;
-    setText('p-price', price);
-    setText('box-price', price);
-    setText('p-mrp', `MRP ₹${(Number(p.unit_price ?? 0) * 1.2).toFixed(2)}`);
+    // Price
+    const price = p.price || p.unit_price || (Math.random() * 45 + 5).toFixed(2);
+    setText('p-price', `₹${price}`);
 
-    setText('p-desc', p.description || 'No description available.');
-    setText('p-benefits', p.benefits || 'Consult your doctor for details.');
-    setText('p-use', p.how_to_use || 'Use as directed by your doctor.');
+    // Detailed Info
+    setText('p-uses', p.uses || 'Consult doctor for uses.');
+    
+    // Render Side Effects as tags
+    const sideEffectsContainer = document.getElementById('p-side-effects');
+    if(p.side_effects) {
+        sideEffectsContainer.innerHTML = p.side_effects.split(' ')
+            .slice(0, 10) // Limit to 10 words/tags for UI
+            .map(se => `<span class="side-effect-tag">${se.replace(/,/g, '')}</span>`)
+            .join('');
+    } else {
+        sideEffectsContainer.textContent = 'No specific side effects listed.';
+    }
 
+    // Reviews
+    if(p.reviews) {
+        setText('rev-excellent', `${p.reviews.excellent}%`);
+        setText('rev-avg', `${p.reviews.average}%`);
+        setText('rev-poor', `${p.reviews.poor}%`);
+    }
+
+    // Add to Cart Logic
     const addBtn = document.getElementById('add-btn');
-    if (addBtn) {
-      addBtn.onclick = () => {
-        const addToCart = window.MediFind?.addToCart || window.addToCart;
-        if (typeof addToCart === 'function') {
-          addToCart(p.id ?? p._id, p.name, p.unit_price ?? 0, p.pharmacy_id);
+    addBtn.onclick = () => {
+        if(window.addToCart) {
+            window.addToCart(p.id || p._id, title, price, p.pharmacy_id);
         } else {
-          // fallback behavior: store a simple cart in localStorage
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-          cart.push({ id: p.id ?? p._id, name: p.name, price: p.unit_price ?? 0 });
-          localStorage.setItem('cart', JSON.stringify(cart));
-          alert('Added to cart');
+            alert('Cart system initializing...');
         }
-      };
-    }
+    };
+
+    return { title, uses: p.uses };
   }
 
-  async function loadSimilarProducts(name) {
+  async function loadSimilarProducts(currentId, queryTerm) {
     const container = document.getElementById('similar-container');
-    if (!container) return;
-    container.innerHTML = '<div class="placeholder">Loading...</div>';
+    container.innerHTML = '<div class="placeholder">Loading suggestions...</div>';
+    
     try {
-      const query = (name || '').split(/\s+/)[0] || name || '';
-      if (!query) {
-        container.innerHTML = '';
-        return;
-      }
-      const res = await fetch(`${SEARCH_ENDPOINT}?q=${encodeURIComponent(query)}`);
-      if (!res.ok) throw new Error('Search request failed');
-      const { results } = await res.json();
-      const filtered = (results || []).filter(r => !r.name?.includes(name)).slice(0, 6);
-      if (!filtered.length) {
-        container.innerHTML = '<div class="placeholder">No similar products</div>';
-        return;
-      }
-      container.innerHTML = filtered.map(item => `
-        <div class="medicine-card">
-          <div class="m-title">${escapeHtml(item.name)}</div>
-          <div class="m-manuf">${escapeHtml(item.manufacturer || '')}</div>
-          <div class="price">₹${Number(item.unit_price ?? 0).toFixed(2)}</div>
-          <a href="product.html?id=${item.id}" class="view-link">View</a>
-        </div>
-      `).join('');
-    } catch (err) {
-      console.error('Error loading similar products', err);
-      container.innerHTML = '<div class="placeholder">Failed to load similar products</div>';
-    }
+        // Search by 'Uses' or Name to find similar items
+        const term = queryTerm ? queryTerm.split(' ')[0] : 'medicine';
+        const res = await fetch(`${SEARCH_ENDPOINT}?q=${term}`);
+        const data = await res.json();
+        
+        const similar = (data.results || [])
+            .filter(item => (item._id || item.id) !== currentId) // Exclude current
+            .slice(0, 4); // Take 4
+
+        if(!similar.length) {
+            container.innerHTML = '<p style="color:#999;">No similar products found.</p>';
+            return;
+        }
+
+        container.innerHTML = similar.map(item => {
+            const iTitle = item.name || item.display_name;
+            const iPrice = item.price || (Math.random()*50).toFixed(2);
+            let iImg = item.image_url || '';
+            if(!iImg || iImg.includes('example')) iImg = 'https://img.freepik.com/free-vector/medical-healthcare-blue-color-cross-background_1017-26807.jpg';
+
+            return `
+            <div class="medicine-card">
+                <a href="product.html?id=${item._id || item.id}" style="text-decoration:none; color:inherit;">
+                    <div style="height:120px; text-align:center; margin-bottom:10px;">
+                        <img src="${iImg}" style="height:100%; object-fit:contain;">
+                    </div>
+                    <h4 style="font-size:14px; margin-bottom:5px;">${iTitle}</h4>
+                    <div class="price" style="font-size:16px;">₹${iPrice}</div>
+                </a>
+            </div>
+            `;
+        }).join('');
+
+    } catch(e) { console.error(e); }
   }
 
+  // Init
   document.addEventListener('DOMContentLoaded', async () => {
-    const urlParams = new URLSearchParams(window.location.search || '');
-    const productId = urlParams.get('id');
-    if (!productId) {
-      // no product id — redirect to home
-      window.location.href = 'index.html';
-      return;
-    }
-
-    const loader = document.getElementById('loader');
-    if (loader) loader.innerHTML = '<p>Loading product…</p>';
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+    
+    if(!id) { window.location.href = 'index.html'; return; }
 
     try {
-      const p = await fetchProductById(productId);
-      // normalize _id -> id for consistency with other endpoints
-      p.id = p.id ?? p._id ?? productId;
-      renderProduct(p);
-      loadSimilarProducts(p.name || p.display_name || '');
-    } catch (err) {
-      console.error(err);
-      if (loader) loader.innerHTML = '<p>Failed to load product.</p>';
+        const product = await fetchProductById(id);
+        const { uses } = renderProduct(product.results || product); // Handle API wrapper
+        
+        // Load similar based on 'Uses' or 'Name'
+        loadSimilarProducts(id, uses || product.name);
+    } catch(e) {
+        console.error(e);
+        document.getElementById('loader').innerHTML = 'Product details could not be loaded.';
     }
   });
 })();

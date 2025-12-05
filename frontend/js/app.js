@@ -45,12 +45,15 @@ function updateAuthUI() {
     
     if (loginBtn) {
         if (authToken && currentUser) {
-            loginBtn.innerHTML = `<i class="fas fa-user"></i> Hello, ${currentUser.name || 'User'}`;
+            loginBtn.innerHTML = `<i class="fas fa-user"></i> Hello, ${currentUser.name || currentUser.username || 'User'}`;
             loginBtn.onclick = null;
         } else {
             // Reset to "Hello, Log in" when logged out
             loginBtn.innerHTML = '<i class="fas fa-user"></i> Hello, Log in';
-            loginBtn.onclick = openAuthModal;
+            loginBtn.onclick = (e) => {
+                if (e) e.preventDefault();
+                openAuthModal();
+            };
         }
     }
     updateCartUI();
@@ -60,7 +63,7 @@ function updateAuthUI() {
 
 function updateCartUI() {
     const cartCountEl = document.getElementById('cart-count');
-    if(cartCountEl) {
+    if (cartCountEl) {
         const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
         cartCountEl.innerText = totalItems;
         cartCountEl.style.display = totalItems > 0 ? 'inline-block' : 'none';
@@ -232,20 +235,18 @@ if(signupForm) {
 }
 
 function logout() {
-    // Clear all stored user data from localStorage
+    // Clear all stored user data from localStorage (keep cart intact)
     localStorage.removeItem('authToken');
     localStorage.removeItem('currentUser');
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     localStorage.removeItem('userId');
     localStorage.removeItem('userRole');
-    localStorage.removeItem('cart');
     sessionStorage.clear();
     
-    // Reset global variables immediately
+    // Reset global variables immediately (do not clear cart)
     authToken = null;
     currentUser = null;
-    cart = [];
     
     // Update UI before redirect
     updateAuthUI();
@@ -260,8 +261,10 @@ function logout() {
 
 async function handleSearch() {
     const query = document.getElementById('medicine-query').value;
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('results-section').style.display = 'none';
+    const loading = document.getElementById('loading');
+    const resultsSection = document.getElementById('results-section');
+    if (loading) loading.style.display = 'block';
+    if (resultsSection) resultsSection.style.display = 'none';
     
     try {
         const res = await fetch(`${API_URL}/medicines/search`, {
@@ -271,15 +274,24 @@ async function handleSearch() {
         const results = await res.json();
         renderResults(results);
     } catch(err) { console.error(err); }
-    finally { document.getElementById('loading').style.display = 'none'; }
+    finally { 
+        if (loading) loading.style.display = 'none'; 
+        if (resultsSection) resultsSection.style.display = 'block';
+    }
 }
 
 function renderResults(data) {
     const container = document.getElementById('results-container');
-    container.innerHTML = '';
-    document.getElementById('results-section').style.display = 'block';
+    if (!container) return;
     
-    if(data.length === 0) { container.innerHTML = '<p>No results found.</p>'; return; }
+    container.innerHTML = '';
+    const resultsSection = document.getElementById('results-section');
+    if (resultsSection) resultsSection.style.display = 'block';
+    
+    if(data.length === 0) { 
+        container.innerHTML = '<p>No results found.</p>'; 
+        return; 
+    }
     
     data.forEach(item => {
         const div = document.createElement('div');
@@ -296,6 +308,76 @@ function renderResults(data) {
     });
 }
 
+async function loadHomeSections() {
+    const newContainer = document.getElementById('new-launches-container');
+    const trendContainer = document.getElementById('trending-container');
+    
+    // Only run if these containers exist (i.e., we are on index.html)
+    if (!newContainer || !trendContainer) return;
+
+    try {
+        // Fetch 8 products for the sample
+        const API = window.MediFind?.API_URL || 'http://localhost:8000/api';
+        const res = await fetch(`${API}/products?limit=8`); 
+        const data = await res.json();
+        const products = data.results || [];
+
+        if (products.length === 0) {
+            newContainer.innerHTML = '<p>No products found.</p>';
+            trendContainer.innerHTML = '<p>No trending items.</p>';
+            return;
+        }
+
+        // Helper to create card HTML
+        const createCard = (p) => {
+            const title = p.name || p.display_name || 'Unknown';
+            // Safe Title: Escape single AND double quotes to prevent breaking the HTML
+            const safeTitle = title.replace(/'/g, "").replace(/"/g, "&quot;");
+            
+            const price = p.price || (Math.random() * 50 + 10).toFixed(2);
+            
+            let img = p.image_url || '';
+            if(img.includes('(')) img = img.match(/\((.*?)\)/)[1];
+            if(!img || img.includes('example')) img = 'https://img.freepik.com/free-vector/medical-healthcare-blue-color-cross-background_1017-26807.jpg';
+            
+            const id = p._id || p.id;
+
+            return `
+            <div class="medicine-card">
+                <a href="product.html?id=${id}" style="text-decoration:none; color:inherit; display:block; height:100%;">
+                    <div style="height:120px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                        <img src="${img}" style="max-height:100%; max-width:100%; border-radius:8px; object-fit:contain;">
+                    </div>
+                    <h4 style="font-size:15px; margin-bottom:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#30363c;">${title}</h4>
+                    <p style="font-size:12px; color:#777; margin-bottom:8px;">${p.manufacturer || 'Generic'}</p>
+                    <div class="price" style="color:#10847e; font-weight:700;">₹${price}</div>
+                </a>
+                <button class="add-btn" style="margin-top:10px; width:100%; background:#10847e; color:white; border:none; padding:8px; border-radius:4px; cursor:pointer;" 
+                    onclick="addToCart('${id}', '${safeTitle}', ${price}, 'demo_pharmacy')">
+                    Add to Cart
+                </button>
+            </div>
+            `;
+        };
+        
+        // Split data: First 4 for New Launches, Next 4 for Trending
+        const newItems = products.slice(0, 4);
+        const trendItems = products.slice(4, 8); 
+
+        // Render
+        newContainer.innerHTML = newItems.map(createCard).join('');
+        
+        // If we have enough items, render trending, otherwise duplicate for demo
+        trendContainer.innerHTML = trendItems.length > 0 
+            ? trendItems.map(createCard).join('') 
+            : newItems.map(createCard).join('');
+
+    } catch (err) {
+        console.error('Failed to load home sections:', err);
+        newContainer.innerHTML = '<p>Failed to load data.</p>';
+    }
+}
+
 // Attach global functions for inline HTML onclicks
 window.handleSearch = handleSearch;
 window.logout = logout;
@@ -303,10 +385,7 @@ window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.showLogin = showLogin;
 window.showSignup = showSignup;
-window.openCart = function() {
-    window.location.href = 'cart.html';
-}
+document.addEventListener('DOMContentLoaded', loadHomeSections);
 
 // Init
 updateAuthUI();
-

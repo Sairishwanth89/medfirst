@@ -1,9 +1,7 @@
-/*
-FILENAME: frontend/js/auth.js
-*/
 document.addEventListener('DOMContentLoaded', () => {
-    const showAlert = window.MediFind.showAlert;
-    const API_URL = window.MediFind.API_URL;
+    // Use global variable or fallback
+    const API_URL = window.MediFind?.API_URL || 'http://localhost:8000/api';
+    const showAlert = window.MediFind?.showAlert || ((msg) => alert(msg));
 
     const loginForm = document.getElementById('login-form');
     const signupForm = document.getElementById('signup-form');
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
-        const alertBox = document.getElementById('alert-box');
+        const alertBox = document.getElementById('alert-box'); // Optional UI element
         
         try {
             const response = await fetch(`${API_URL}/auth/login`, {
@@ -27,29 +25,56 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.detail || 'Login failed');
 
-            // Success
-            window.MediFind.authToken = data.access_token;
-            window.MediFind.currentUser = data.user;
+            // Success: Save to LocalStorage
+            localStorage.setItem('authToken', data.access_token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
 
-            showAlert('Login successful!', 'success', alertBox);
-            redirectUser(data.user.role);
+            // Update Global State if app.js is loaded
+            if (window.MediFind && window.MediFind.setAuth) {
+                window.MediFind.setAuth(data.access_token, data.user);
+            }
+
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                alertBox.textContent = 'Login successful! Redirecting...';
+                alertBox.style.color = 'green';
+            } else {
+                alert('Login successful!');
+            }
+
+            // Redirect based on Role
+            setTimeout(() => {
+                if (data.user.role === 'pharmacy') {
+                    window.location.href = 'pharmacy.html';
+                } else if (data.user.role === 'delivery') {
+                    window.location.href = 'delivery.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }, 1000);
 
         } catch (error) {
-            showAlert(error.message, 'error', alertBox);
+            console.error(error);
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                alertBox.textContent = error.message;
+                alertBox.style.color = 'red';
+            } else {
+                alert(error.message);
+            }
         }
     }
 
     async function handleSignup(e) {
         e.preventDefault();
-        const alertBox = document.getElementById('alert-box');
         
         const userData = {
             email: document.getElementById('email').value,
             username: document.getElementById('username').value,
             password: document.getElementById('password').value,
-            full_name: document.getElementById('full_name').value || null,
-            phone: document.getElementById('phone').value || null,
-            role: document.getElementById('role').value
+            full_name: document.getElementById('full_name').value || '',
+            phone: document.getElementById('phone') ? document.getElementById('phone').value : '',
+            role: document.getElementById('reg-role').value
         };
 
         try {
@@ -62,27 +87,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.detail || 'Signup failed');
 
-            // Success
-            window.MediFind.authToken = data.access_token;
-            window.MediFind.currentUser = data.user;
+            // Auto Login
+            localStorage.setItem('authToken', data.access_token);
+            localStorage.setItem('currentUser', JSON.stringify(data.user));
 
-            showAlert('Account created!', 'success', alertBox);
-            redirectUser(data.user.role);
+            if (window.MediFind && window.MediFind.setAuth) {
+                window.MediFind.setAuth(data.access_token, data.user);
+            }
+
+            alert('Account created successfully!');
+            
+            // Redirect
+            if (data.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
+            else if (data.user.role === 'delivery') window.location.href = 'delivery.html';
+            else window.location.href = 'index.html';
 
         } catch (error) {
-            showAlert(error.message, 'error', alertBox);
+            alert(error.message);
         }
-    }
-
-    function redirectUser(role) {
-        setTimeout(() => {
-            if (role === 'pharmacy') {
-                window.location.href = 'pharmacy.html';
-            } else if (role === 'delivery') {
-                window.location.href = 'delivery.html'; // New Page
-            } else {
-                window.location.href = 'index.html';
-            }
-        }, 1500);
     }
 });

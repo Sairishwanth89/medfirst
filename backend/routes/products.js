@@ -96,10 +96,23 @@ router.get('/search', async (req, res) => {
 // Get all products (Standard route)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find().limit(50);
-    res.json({ success: true, count: products.length, results: products });
+    // Check if a limit was requested (e.g. ?limit=8), otherwise default to 50
+    const limit = parseInt(req.query.limit) || 50;
+    
+    // Fetch random products if possible, or just the first N products
+    // Using .limit() gives us a sample
+    const products = await Product.find().limit(limit);
+    
+    res.json({
+      success: true,
+      count: products.length,
+      results: products
+    });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 });
 
