@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Stock - MediAgency</title>
+    <link rel="stylesheet" href="css/pharmacy-styles.css">
+    <link rel="stylesheet" href="css/pharmacy-stock.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Emergency Banner -->
+    <div class="emergency-banner">
+        <i class="fas fa-ambulance"></i>
+        <span>Need medicines urgently? We're available 24/7 for emergency deliveries!</span>
+        <button class="emergency-btn">Emergency Request</button>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="header-left">
+                <i class="fas fa-boxes header-icon-large"></i>
+                <div>
+                    <h1>Medicine Stock</h1>
+                    <p>Manage your pharmacy inventory</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-icon home-icon" onclick="window.location.href='pharmacy.html'">
+                    <i class="fas fa-home"></i>
+                </div>
+                <button class="add-medicine-btn" onclick="openAddMedicineModal()">
+                    <i class="fas fa-plus"></i> Add Medicine
+                </button>
+                <div class="header-icon logout-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        <!-- Stats Cards -->
+        <div class="stock-stats">
+            <div class="stock-stat-card">
+                <div class="stat-icon blue-icon">
+                    <i class="fas fa-pills"></i>
+                </div>
+                <div>
+                    <h3 id="total-medicines-count">17</h3>
+                    <p>Total Medicines</p>
+                </div>
+            </div>
+            <div class="stock-stat-card">
+                <div class="stat-icon yellow-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div>
+                    <h3 id="low-stock-count">3</h3>
+                    <p>Low Stock</p>
+                </div>
+            </div>
+            <div class="stock-stat-card">
+                <div class="stat-icon red-icon">
+                    <i class="fas fa-times-circle"></i>
+                </div>
+                <div>
+                    <h3 id="out-of-stock-count">0</h3>
+                    <p>Out of Stock</p>
+                </div>
+            </div>
+            <div class="stock-stat-card">
+                <div class="stat-icon purple-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h3 id="expiring-soon-count">0</h3>
+                    <p>Expiring Soon</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="section-card">
+            <div class="filters-row">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="medicine-search" placeholder="Search medicines by name...">
+                </div>
+                <select id="category-filter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="over_the_counter">Over the Counter</option>
+                    <option value="prescription">Prescription</option>
+                    <option value="supplement">Supplement</option>
+                </select>
+                <select id="stock-filter" class="filter-select">
+                    <option value="">All Stock Levels</option>
+                    <option value="in_stock">In Stock</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="out_of_stock">Out of Stock</option>
+                </select>
+            </div>
+
+            <!-- Medicine Table -->
+            <div class="table-container">
+                <table class="medicine-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine Name</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicine-table-body">
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Paracetamol 500mg</strong>
+                                    <small>Pain reliever and fever reducer, used for headaches, muscle aches, arthritis, backache, toothaches, colds, and fevers.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge otc">over_the_counter</span></td>
+                            <td>₹50.00</td>
+                            <td>75 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Paracetamol 650mg</strong>
+                                    <small>Higher strength paracetamol for moderate to severe pain and high fever.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge otc">over_the_counter</span></td>
+                            <td>₹75.00</td>
+                            <td>89 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Aspirin 75mg</strong>
+                                    <small>Blood thinner and pain reliever, used to prevent heart attacks and strokes.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge prescription">prescription</span></td>
+                            <td>₹120.00</td>
+                            <td>83 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Ibuprofen 400mg</strong>
+                                    <small>Nonsteroidal anti-inflammatory drug (NSAID) for pain, fever, and inflammation.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge otc">over_the_counter</span></td>
+                            <td>₹82.00</td>
+                            <td>23 units</td>
+                            <td><span class="stock-badge low-stock">Low Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Amoxicillin 500mg</strong>
+                                    <small>Antibiotic used to treat bacterial infections.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge prescription">prescription</span></td>
+                            <td>₹180.00</td>
+                            <td>13 units</td>
+                            <td><span class="stock-badge low-stock">Low Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Cetirizine 10mg</strong>
+                                    <small>Antihistamine for allergy relief. Treats hay fever, hives, and itching.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge otc">over_the_counter</span></td>
+                            <td>₹60.00</td>
+                            <td>39 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Omeprazole 20mg</strong>
+                                    <small>Proton pump inhibitor for acid reflux and stomach ulcers.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge prescription">prescription</span></td>
+                            <td>₹180.00</td>
+                            <td>76 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Vitamin D3 60000 IU</strong>
+                                    <small>Vitamin supplement for bone health and immunity.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge supplement">supplement</span></td>
+                            <td>₹40.00</td>
+                            <td>16 units</td>
+                            <td><span class="stock-badge low-stock">Low Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="medicine-name">
+                                    <strong>Vitamin C 500mg</strong>
+                                    <small>Antioxidant vitamin for immune support and overall health.</small>
+                                </div>
+                            </td>
+                            <td><span class="category-badge supplement">supplement</span></td>
+                            <td>₹36.00</td>
+                            <td>92 units</td>
+                            <td><span class="stock-badge in-stock">In Stock</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="icon-btn edit-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="icon-btn delete-btn" title="Delete"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Medicine Modal -->
+    <div id="add-medicine-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Medicine</h3>
+                <span class="close-modal" onclick="closeAddMedicineModal()">&times;</span>
+            </div>
+            <form id="add-medicine-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medicine Name *</label>
+                        <input type="text" id="med-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Generic Name</label>
+                        <input type="text" id="med-generic">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="med-description" rows="2"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="med-category" required>
+                            <option value="">Select Category</option>
+                            <option value="over_the_counter">Over the Counter</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="supplement">Supplement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Manufacturer</label>
+                        <input type="text" id="med-manufacturer">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price (₹) *</label>
+                        <input type="number" id="med-price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity *</label>
+                        <input type="number" id="med-stock" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Add Medicine</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/pharmacy-stock.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pharmacy Profile - MediAgency</title>
+    <link rel="stylesheet" href="css/pharmacy-styles.css">
+    <link rel="stylesheet" href="css/pharmacy-settings.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Priority Banner -->
+    <div class="priority-banner">
+        <i class="fas fa-ambulance"></i>
+        <span>Priority order requests from hospitals receive instant notifications!</span>
+        <button class="view-orders-btn" onclick="window.location.href='pharmacy-orders.html'">View Orders</button>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="header-left">
+                <i class="fas fa-store header-icon-large"></i>
+                <div>
+                    <h1>Pharmacy Profile</h1>
+                    <p>Manage your pharmacy information</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-icon home-icon" onclick="window.location.href='pharmacy.html'">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="header-icon stock-icon" onclick="window.location.href='pharmacy-stock.html'">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="header-icon orders-icon" onclick="window.location.href='pharmacy-orders.html'">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <div class="header-icon settings-icon" onclick="window.location.href='pharmacy-settings.html'">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <div class="header-icon logout-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        <div class="profile-layout">
+            <!-- Left Sidebar - Profile Card -->
+            <aside class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <span>M</span>
+                    </div>
+                    <h3>MediAgency</h3>
+                    <p class="member-since">Member since Nov 2025</p>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Verified Pharmacy</span>
+                        </div>
+                        <div class="profile-stat">
+                            <i class="fas fa-star"></i>
+                            <span>4.5 Rating (0 orders)</span>
+                        </div>
+                        <div class="profile-stat">
+                            <i class="fas fa-boxes"></i>
+                            <span>0 Items in stock</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right Content -->
+            <div class="profile-content">
+                <!-- Business Information -->
+                <div class="info-section">
+                    <div class="section-header-profile">
+                        <h3><i class="fas fa-briefcase"></i> Business Information</h3>
+                        <button class="edit-btn-small" onclick="enableEdit('business')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <form id="business-info-form">
+                        <div class="form-group">
+                            <label>Pharmacy Name</label>
+                            <input type="text" id="pharmacy-name" value="MediAgency" disabled>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>License Number</label>
+                                <input type="text" id="license-number" placeholder="Enter license number" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>GST Number</label>
+                                <input type="text" id="gst-number" placeholder="Enter GST number" disabled>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Contact Phone</label>
+                                <input type="tel" id="contact-phone" value="9876543121" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Contact Email</label>
+                                <input type="email" id="contact-email" value="pharmacy@gmail.com" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Full Address</label>
+                            <textarea id="full-address" rows="3" placeholder="Enter address" disabled></textarea>
+                        </div>
+                        <button type="submit" class="save-btn" style="display: none;" id="business-save">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Operating Hours -->
+                <div class="info-section">
+                    <div class="section-header-profile">
+                        <h3><i class="fas fa-clock"></i> Operating Hours</h3>
+                        <button class="edit-btn-small" onclick="enableEdit('hours')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <form id="operating-hours-form">
+                        <div class="hours-grid">
+                            <div class="hours-row">
+                                <label>Monday</label>
+                                <input type="text" value="9:00 AM - 9:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Tuesday</label>
+                                <input type="text" value="9:00 AM - 9:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Wednesday</label>
+                                <input type="text" value="9:00 AM - 9:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Thursday</label>
+                                <input type="text" value="9:00 AM - 9:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Friday</label>
+                                <input type="text" value="9:00 AM - 9:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Saturday</label>
+                                <input type="text" value="9:00 AM - 6:00 PM" disabled>
+                            </div>
+                            <div class="hours-row">
+                                <label>Sunday</label>
+                                <input type="text" value="Closed" disabled>
+                            </div>
+                        </div>
+                        <button type="submit" class="save-btn" style="display: none;" id="hours-save">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Bank Details -->
+                <div class="info-section">
+                    <div class="section-header-profile">
+                        <h3><i class="fas fa-university"></i> Bank Details</h3>
+                        <button class="edit-btn-small" onclick="enableEdit('bank')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </div>
+                    <form id="bank-details-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Account Holder Name</label>
+                                <input type="text" id="account-holder" value="MediAgency" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>Account Number</label>
+                                <input type="text" id="account-number" placeholder="Enter account number" disabled>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Bank Name</label>
+                                <input type="text" id="bank-name" placeholder="Enter bank name" disabled>
+                            </div>
+                            <div class="form-group">
+                                <label>IFSC Code</label>
+                                <input type="text" id="ifsc-code" placeholder="Enter IFSC code" disabled>
+                            </div>
+                        </div>
+                        <button type="submit" class="save-btn" style="display: none;" id="bank-save">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/pharmacy-settings.js"></script>
+</body>
+</html>

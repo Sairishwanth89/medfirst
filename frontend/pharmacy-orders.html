@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders Management - MediAgency</title>
+    <link rel="stylesheet" href="css/pharmacy-styles.css">
+    <link rel="stylesheet" href="css/pharmacy-orders.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Priority Banner -->
+    <div class="priority-banner">
+        <i class="fas fa-ambulance"></i>
+        <span>Priority orders from hospitals receive instant notifications!</span>
+        <button class="dashboard-btn" onclick="window.location.href='pharmacy.html'">Dashboard</button>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="container">
+            <div class="header-left">
+                <i class="fas fa-shopping-bag header-icon-large"></i>
+                <div>
+                    <h1>Orders Management</h1>
+                    <p>Manage all pharmacy orders</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-icon home-icon" onclick="window.location.href='pharmacy.html'">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="header-icon stock-icon" onclick="window.location.href='pharmacy-stock.html'">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="header-icon logout-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        <div class="section-card">
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tab="pending" onclick="switchTab('pending')">
+                    Pending (3)
+                </button>
+                <button class="tab-btn" data-tab="processing" onclick="switchTab('processing')">
+                    Processing (11)
+                </button>
+                <button class="tab-btn" data-tab="completed" onclick="switchTab('completed')">
+                    Completed (20)
+                </button>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Medicines</th>
+                            <th>Amount</th>
+                            <th>Order Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orders-table-body">
+                        <!-- Pending Orders -->
+                        <tr class="pending-order">
+                            <td><strong>#55881C</strong></td>
+                            <td>
+                                <div>patient 123</div>
+                                <small>9876543773</small>
+                            </td>
+                            <td>Paracetamol 650mg (1)</td>
+                            <td>₹75</td>
+                            <td>3:15 PM</td>
+                            <td><span class="status-badge pending">Pending</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn accept-btn">Accept</button>
+                                    <button class="action-btn reject-btn">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="pending-order">
+                            <td><strong>#51C4CE</strong></td>
+                            <td>
+                                <div>patient 123</div>
+                                <small>7981383773</small>
+                            </td>
+                            <td>Cetirizine 10mg (1)</td>
+                            <td>₹60</td>
+                            <td>2:15 PM</td>
+                            <td><span class="status-badge pending">Pending</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn accept-btn">Accept</button>
+                                    <button class="action-btn reject-btn">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="pending-order">
+                            <td><strong>#5148C6</strong></td>
+                            <td>
+                                <div>patient 123</div>
+                                <small>9876328773</small>
+                            </td>
+                            <td>Paracetamol 500mg (1)</td>
+                            <td>₹50</td>
+                            <td>10:20 PM</td>
+                            <td><span class="status-badge pending">Pending</span></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn accept-btn">Accept</button>
+                                    <button class="action-btn reject-btn">Reject</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script src="js/pharmacy-orders.js"></script>
+</body>
+</html>

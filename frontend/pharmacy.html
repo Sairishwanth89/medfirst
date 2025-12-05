@@ -3,110 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pharmacy Dashboard - MediFind</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title>MediAgency - Pharmacy Dashboard</title>
+    <link rel="stylesheet" href="css/pharmacy-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <header class="pe-header">
-        <div class="container header-content">
-            <div class="logo"><i class="fas fa-heartbeat"></i> MediFind Partner</div>
-            <div class="nav-actions">
-                <span id="pharmacy-name" style="font-weight: 600;">My Pharmacy</span>
-                <button id="logout-btn" type="button" class="btn btn-ghost" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    <!-- Emergency Banner -->
+    <div class="emergency-banner">
+        <i class="fas fa-ambulance"></i>
+        <span>Need medicines urgently? We're available 24/7 for emergency deliveries!</span>
+        <button class="emergency-btn">Emergency Request</button>
+    </div>
+
+    <!-- Main Header -->
+    <header class="pharmacy-header">
+        <div class="container">
+            <div class="header-left">
+                <div class="brand">
+                    <i class="fas fa-briefcase-medical"></i>
+                    <div>
+                        <h1>MediAgency</h1>
+                        <p>Manage your inventory and orders efficiently</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="header-icon notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge">1</span>
+                </div>
+                <div class="header-icon profile-icon">
+                    <span>P</span>
+                </div>
+                <div class="header-icon home-icon" onclick="window.location.href='pharmacy.html'">
+                    <i class="fas fa-home"></i>
+                </div>
+                <div class="header-icon logout-icon" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
             </div>
         </div>
     </header>
 
-    <main class="container" style="padding-top: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Dashboard</h2>
-            <button class="pe-btn-primary" style="width: auto;" onclick="openAddModal()">+ Add Medicine</button>
+    <!-- Main Content -->
+    <main class="dashboard-container">
+        <!-- Action Cards Grid -->
+        <div class="action-cards">
+            <div class="action-card orange-card" onclick="openAddMedicineModal()">
+                <div class="card-icon orange-icon">
+                    <i class="fas fa-plus"></i>
+                </div>
+                <h3>Add Medicine</h3>
+                <p>Add new medicines to your inventory</p>
+            </div>
+
+            <div class="action-card" onclick="window.location.href='pharmacy-stock.html'">
+                <div class="card-icon purple-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <h3>Manage Stock</h3>
+                <p>Update and track medicine stock levels</p>
+            </div>
+
+            <div class="action-card" onclick="window.location.href='pharmacy-orders.html'">
+                <div class="card-icon teal-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3>Orders</h3>
+                <p>View and manage customer orders</p>
+            </div>
+
+            <div class="action-card" onclick="window.location.href='pharmacy-settings.html'">
+                <div class="card-icon cyan-icon">
+                    <i class="fas fa-cog"></i>
+                </div>
+                <h3>Settings</h3>
+                <p>Manage pharmacy details and hours</p>
+            </div>
         </div>
 
         <!-- Stats Grid -->
-        <div class="pe-banners" style="margin-bottom: 30px;">
-            <div class="banner-box">
-                <div class="banner-text">
-                    <h3>Total Orders</h3>
-                    <p style="font-size: 24px; font-weight: 700;">12</p>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h2 id="total-medicines">17</h2>
+                <p>Total Medicines</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="pending-orders">3</h2>
+                <p>Pending Orders</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="orders-today">5</h2>
+                <p>Orders Today</p>
+            </div>
+            <div class="stat-card">
+                <h2 id="revenue-today">₹470</h2>
+                <p>Revenue Today</p>
+            </div>
+        </div>
+
+        <!-- Recent Orders Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3><i class="fas fa-clock"></i> Recent Orders</h3>
+                <a href="pharmacy-orders.html" class="view-all">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="orders-table-container">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Medicines</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recent-orders-body">
+                        <tr>
+                            <td>#55FF58</td>
+                            <td>patient 123</td>
+                            <td>Paracetamol 650mg</td>
+                            <td>₹50</td>
+                            <td><span class="status-badge in-transit">In Transit</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>#55F82D</td>
+                            <td>patient 123</td>
+                            <td>Paracetamol 650mg</td>
+                            <td>₹75</td>
+                            <td><span class="status-badge in-transit">In Transit</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>#55881C</td>
+                            <td>patient 123</td>
+                            <td>Paracetamol 650mg</td>
+                            <td>₹75</td>
+                            <td><span class="status-badge pending">Pending</span></td>
+                            <td><button class="action-btn accept-btn">Accept</button></td>
+                        </tr>
+                        <tr>
+                            <td>#78CC18</td>
+                            <td>patient 123</td>
+                            <td>Paracetamol 650mg</td>
+                            <td>₹75</td>
+                            <td><span class="status-badge cancelled">Cancelled</span></td>
+                            <td>-</td>
+                        </tr>
+                        <tr>
+                            <td>#3E6A35</td>
+                            <td>patient 123</td>
+                            <td>Paracetamol 650mg, Aspir...</td>
+                            <td>₹135</td>
+                            <td><span class="status-badge in-transit">In Transit</span></td>
+                            <td>-</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Low Stock Alerts -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Low Stock Alerts</h3>
+                <a href="pharmacy-stock.html" class="view-all">Manage Stock <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="alert-cards">
+                <div class="alert-card">
+                    <div>
+                        <h4>Amoxicillin 500mg</h4>
+                        <p>Only 13 left</p>
+                    </div>
+                    <button class="update-btn">Update</button>
                 </div>
-                <div class="banner-icon"><i class="fas fa-shopping-bag fa-2x" style="color: var(--primary);"></i></div>
-            </div>
-            <div class="banner-box" style="background: #fff0f0;">
-                <div class="banner-text">
-                    <h3 style="color: #e74c3c;">Low Stock</h3>
-                    <p style="font-size: 24px; font-weight: 700; color: #e74c3c;">4 Items</p>
+                <div class="alert-card">
+                    <div>
+                        <h4>Vitamin D3 60000 IU</h4>
+                        <p>Only 16 left</p>
+                    </div>
+                    <button class="update-btn">Update</button>
                 </div>
-                <div class="banner-icon"><i class="fas fa-exclamation-triangle fa-2x" style="color: #e74c3c;"></i></div>
-            </div>
-        </div>
-
-        <!-- Tabs -->
-        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee;">
-            <button class="pe-btn-primary" style="background: transparent; color: var(--primary); border-bottom: 2px solid var(--primary); border-radius: 0;" onclick="showTab('orders')">Orders</button>
-            <button class="pe-btn-primary" style="background: transparent; color: #666; border-radius: 0;" onclick="showTab('inventory')">Inventory</button>
-        </div>
-
-        <!-- Orders Tab -->
-        <div id="orders-tab">
-            <div class="pe-results-grid" id="orders-container">
-                <!-- Orders will be injected here -->
-                <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #999;">Loading orders...</div>
-            </div>
-        </div>
-
-        <!-- Inventory Tab -->
-        <div id="inventory-tab" style="display: none;">
-            <div class="pe-results-grid" id="inventory-container">
-                <!-- Inventory will be injected here -->
+                <div class="alert-card">
+                    <div>
+                        <h4>testmedicine</h4>
+                        <p>Only 18 left</p>
+                    </div>
+                    <button class="update-btn">Update</button>
+                </div>
             </div>
         </div>
     </main>
 
     <!-- Add Medicine Modal -->
-    <div id="add-modal" class="modal-backdrop">
+    <div id="add-medicine-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeAddModal()">&times;</span>
-            <div class="auth-header"><h3>Add New Stock</h3></div>
-            <form id="add-med-form">
-                <div class="pe-input-group">
-                    <label>Medicine Name</label>
-                    <input type="text" id="med-name" required placeholder="e.g., Dolo 650">
+            <div class="modal-header">
+                <h3>Add New Medicine</h3>
+                <span class="close-modal" onclick="closeAddMedicineModal()">&times;</span>
+            </div>
+            <form id="add-medicine-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Medicine Name *</label>
+                        <input type="text" id="med-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Generic Name</label>
+                        <input type="text" id="med-generic">
+                    </div>
                 </div>
-                <div class="pe-input-group">
-                    <label>Generic Name</label>
-                    <input type="text" id="med-generic" placeholder="e.g., Paracetamol">
-                </div>
-                <div class="pe-input-group">
-                    <label>Manufacturer</label>
-                    <input type="text" id="med-manufacturer" placeholder="e.g., Micro Labs">
-                </div>
-                <div class="pe-input-group">
+                <div class="form-group">
                     <label>Description</label>
-                    <input type="text" id="med-desc" placeholder="Short description">
+                    <textarea id="med-description" rows="2"></textarea>
                 </div>
-                <div class="pe-input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div>
-                        <label>Price</label>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="med-category" required>
+                            <option value="">Select Category</option>
+                            <option value="over_the_counter">Over the Counter</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="supplement">Supplement</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Manufacturer</label>
+                        <input type="text" id="med-manufacturer">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Price (₹) *</label>
                         <input type="number" id="med-price" step="0.01" required>
                     </div>
-                    <div>
-                        <label>Quantity</label>
-                        <input type="number" id="med-qty" required>
+                    <div class="form-group">
+                        <label>Stock Quantity *</label>
+                        <input type="number" id="med-stock" required>
                     </div>
                 </div>
-                <div class="pe-input-group">
-                     <label>
-                        <input type="checkbox" id="med-rx"> Requires Prescription
-                     </label>
-                </div>
-                <button type="submit" class="pe-btn-primary">Add to Inventory</button>
+                <button type="submit" class="submit-btn">Add Medicine</button>
             </form>
         </div>
     </div>
 
     <script src="js/app.js"></script>
-    <script src="js/pharmacy.js"></script>
+    <script src="js/pharmacy-dashboard.js"></script>
 </body>
 </html>
