@@ -1,18 +1,31 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  sku: { type: String, index: true },
+  // --- New Fields from CSV ---
   name: { type: String, required: true },
+  composition: { type: String, default: '' },
+  uses: { type: String, default: '' },
+  side_effects: { type: String, default: '' },
+  image_url: { type: String, default: '' },
+  manufacturer: { type: String, default: '' },
+  
+  // Reviews Object
+  reviews: {
+    excellent: { type: Number, default: 0 },
+    average: { type: Number, default: 0 },
+    poor: { type: Number, default: 0 }
+  },
+  
+  // --- Existing Fields ---
   description: { type: String, default: '' },
   price: { type: Number, default: 0 },
   stock: { type: Number, default: 0 },
   pharmacyId: { type: String, index: true },
   category: { type: String, default: '' },
-  tags: [String],
   created_at: { type: Date, default: Date.now }
 });
 
-// Text index to support search on name + description + sku
-productSchema.index({ name: 'text', description: 'text', sku: 'text' });
+// Index for search
+productSchema.index({ name: 'text', composition: 'text', uses: 'text', manufacturer: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

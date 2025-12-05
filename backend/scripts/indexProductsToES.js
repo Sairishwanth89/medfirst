@@ -74,16 +74,15 @@ async function main() {
       const doc = await cursor.next();
       const id = String(doc._id);
       const source = {
-        display_name: doc.display_name || doc.name || '',
-        manufacturer_name: doc.manufacturer_name || '',
-        composition_short: doc.composition_short || '',
-        pack_desc: doc.pack_desc || '',
-        keywords: Array.isArray(doc.keywords) ? doc.keywords : [],
+        name: doc.name || '',
+        composition: doc.composition || '',
+        uses: doc.uses || '',
+        side_effects: doc.side_effects || '',
+        manufacturer: doc.manufacturer || '',
         image_url: doc.image_url || '',
-        is_prescription_required: !!doc.is_prescription_required,
-        pharmacyId: doc.pharmacyId ? String(doc.pharmacyId) : (doc.pharmacyId || '')
+        price: doc.price || 0,
+        pharmacyId: doc.pharmacyId ? String(doc.pharmacyId) : ''
       };
-
       bulk.push({ index: { _index: INDEX, _id: id } }, source);
 
       if (bulk.length / 2 >= BATCH_SIZE) {

@@ -56,5 +56,32 @@ async function createIndexIfMissing() {
     throw err;
   }
 }
+async function createIndexIfMissing() {
+  try {
+    const { body: exists } = await esClient.indices.exists({ index: ELASTICSEARCH_INDEX });
+    if (!exists) {
+      await esClient.indices.create({
+        index: ELASTICSEARCH_INDEX,
+        body: {
+          mappings: {
+            properties: {
+              name: { type: 'text' },
+              composition: { type: 'text' },
+              uses: { type: 'text' },
+              side_effects: { type: 'text' },
+              manufacturer: { type: 'text' }, // Changed to text for partial matching
+              image_url: { type: 'keyword' },
+              price: { type: 'float' },
+              pharmacyId: { type: 'keyword' }
+            }
+          }
+        }
+      });
+      console.log(`Created ES index: ${ELASTICSEARCH_INDEX}`);
+    }
+  } catch (err) {
+    console.error('createIndexIfMissing error:', err?.message || err);
+  }
+}
 
 module.exports = { esClient, ELASTICSEARCH_INDEX, waitForElasticsearch, createIndexIfMissing };

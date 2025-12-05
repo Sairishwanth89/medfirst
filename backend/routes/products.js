@@ -30,7 +30,14 @@ router.get('/search', async (req, res) => {
                 query: {
                     multi_match: {
                         query: searchQuery,
-                        fields: ['display_name^3', 'manufacturer_name^2', 'composition_short', 'keywords'],
+                        // Search in Name, Composition, Uses, and Manufacturer
+                        fields: [
+                            'name^4', 
+                            'composition^3', 
+                            'uses^2', 
+                            'manufacturer', 
+                            'side_effects'
+                        ],
                         fuzziness: 'AUTO'
                     }
                 }
