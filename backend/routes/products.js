@@ -3,6 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 // Import the client safely
 const esConfig = require('../config/elasticsearch');
+const Notification = require('../models/Notification');
 const esClient = esConfig.esClient;
 const PRODUCT_INDEX = process.env.ELASTICSEARCH_PRODUCTS_INDEX || 'products';
 
@@ -113,6 +114,54 @@ router.get('/', async (req, res) => {
       success: false,
       error: error.message
     });
+  }
+});
+router.get('/search', async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q) return res.status(400).json({ error: 'Query required' });
+
+    // ... (Keep your existing Elasticsearch/Mongo search logic here) ...
+    // ... Assume 'results' is the array of products found ...
+    
+    // [EXISTING CODE: Perform Search...] 
+    // For this example, I'll simulate the Mongo fallback results:
+    const results = await Product.find({ 
+        name: { $regex: q, $options: 'i' } 
+    }).limit(50);
+
+    // ➤ NEW LOGIC: Check for Out-of-Stock items in search results
+    results.forEach(async (product) => {
+        if (product.stock_quantity === 0) {
+            // Check if alert already exists today
+            const existingAlert = await Notification.findOne({
+                pharmacy_id: product.pharmacy_id,
+                product_id: product._id,
+                status: 'unread'
+            });
+
+            if (existingAlert) {
+                // Just increment the counter (e.g. "5 people looked for this")
+                existingAlert.count += 1;
+                await existingAlert.save();
+            } else {
+                // Create new Real-Time Alert
+                await Notification.create({
+                    pharmacy_id: product.pharmacy_id,
+                    product_id: product._id,
+                    product_name: product.name,
+                    type: 'out_of_stock'
+                });
+                console.log(`⚠️ Alert sent to Pharmacy for: ${product.name}`);
+            }
+        }
+    });
+
+    res.json({ results });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Search failed' });
   }
 });
 

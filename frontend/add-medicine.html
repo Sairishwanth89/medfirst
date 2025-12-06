@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Medicine - MediFind Pharmacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .form-container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .form-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+        .full-width { grid-column: span 2; }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+        .btn-group {
+            margin-top: 30px;
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+        .btn-cancel {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-save {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body style="background-color: #f3f4f6;">
+
+    <header class="glass-header">
+        <div class="container header-content">
+            <div class="brand">
+                <i class="fas fa-clinic-medical"></i> MediFind <span class="badge-role">Pharmacy</span>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <span class="greeting">Inventory Management</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="form-container">
+            <div class="form-header">
+                <h2><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Add New Medicine</h2>
+                <button onclick="window.location.href='pharmacy.html'" class="btn-cancel" style="padding: 8px 15px; font-size:13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
+
+            <form id="add-medicine-form">
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>Medicine Name *</label>
+                        <input type="text" id="med-name" placeholder="e.g., Dolo 650" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Generic Name</label>
+                        <input type="text" id="med-generic" placeholder="e.g., Paracetamol">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Manufacturer</label>
+                        <input type="text" id="med-manufacturer" placeholder="e.g., Micro Labs">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="med-category" required>
+                            <option value="">Select Category</option>
+                            <option value="over_the_counter">Over the Counter (OTC)</option>
+                            <option value="prescription">Prescription Only</option>
+                            <option value="supplement">Supplement / Vitamin</option>
+                            <option value="first_aid">First Aid</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Price (₹) *</label>
+                        <input type="number" id="med-price" step="0.01" min="0" placeholder="0.00" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Initial Stock Quantity *</label>
+                        <input type="number" id="med-qty" min="0" placeholder="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="med-expiry">
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Description / Uses</label>
+                        <textarea id="med-desc" rows="3" placeholder="Brief description of the medicine..."></textarea>
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label>Image URL (Optional)</label>
+                        <input type="url" id="med-image" placeholder="https://example.com/image.jpg">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn-cancel" onclick="window.location.href='pharmacy.html'">Cancel</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i> Save Medicine
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Inline script for this specific page
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = window.MediFind?.API_URL || 'http://localhost:8000/api';
+            const authToken = window.MediFind?.authToken || localStorage.getItem('authToken');
+
+            if (!authToken) {
+                alert("Please login first.");
+                window.location.href = 'login.html';
+            }
+
+            document.getElementById('add-medicine-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = e.target.querySelector('.btn-save');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+                btn.disabled = true;
+
+                const data = {
+                    name: document.getElementById('med-name').value,
+                    generic_name: document.getElementById('med-generic').value,
+                    manufacturer: document.getElementById('med-manufacturer').value,
+                    category: document.getElementById('med-category').value,
+                    unit_price: parseFloat(document.getElementById('med-price').value),
+                    stock_quantity: parseInt(document.getElementById('med-qty').value),
+                    description: document.getElementById('med-desc').value,
+                    image_url: document.getElementById('med-image').value
+                };
+
+                try {
+                    const res = await fetch(`${API_URL}/stock`, {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (res.ok) {
+                        alert('Medicine added successfully!');
+                        window.location.href = 'pharmacy.html'; // Redirect back to dashboard
+                    } else {
+                        const err = await res.json();
+                        alert('Error: ' + (err.detail || 'Failed to add medicine'));
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Server connection failed.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -9,6 +9,8 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - app-network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 30s
@@ -22,9 +24,13 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - app-network
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 30s
@@ -39,6 +45,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - app-network
     command: redis-server --appendonly yes
 
   # Elasticsearch
@@ -54,6 +62,8 @@ services:
       - "9300:9300"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - app-network
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
@@ -66,13 +76,14 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: medicine-backend
-    env_file: .env
     ports:
       - "8000:8000"
+    env_file: .env
     environment:
       - PORT=8000
-      - MONGO_URI=mongodb://mongo:27017/medifind
-      - SECRET_KEY=${SECRET_KEY}
+      # Overriding .env localhost values with Docker Service Names
+      - MONGODB_URI=mongodb://mongo:27017/medifind
+      - SECRET_KEY=your_jwt_secret_key_2024
       - REDIS_HOST=redis
       - ELASTICSEARCH_HOST=medicine-elasticsearch
       - RABBITMQ_HOST=rabbitmq
@@ -82,21 +93,17 @@ services:
       - ./backend:/app
       - /app/node_modules
     depends_on:
-      - mongo
-      - rabbitmq
-      - elasticsearch
-      - redis
+      mongo:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app-network
     command: npm run dev
-
-  # Background Worker (Consumes RabbitMQ messages)
-  # NOTE: You will need a Node.js worker script (e.g., worker.js) for this.
-  # For now, using the backend image to run a worker process if you create one.
-  # background-worker:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: Dockerfile
-  #   command: node worker.js 
-  #   ... (env vars similar to backend) ...
 
   # Frontend (Nginx)
   frontend:
@@ -106,15 +113,19 @@ services:
       - "3000:80"
     volumes:
       - ./frontend:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Uncomment the line below ONLY if you have created an nginx.conf file
+      # - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       - backend
+    networks:
+      - app-network
 
 volumes:
   redis_data:
   elasticsearch_data:
   mongo_data:
+  rabbitmq_data:
 
 networks:
-  default:
-    name: medicine-network
+  app-network:
+    driver: bridge

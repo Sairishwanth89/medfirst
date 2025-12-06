@@ -4,286 +4,437 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediFind - Online Pharmacy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* Modal Base Styles */
+        .modal, .modal-backdrop {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            backdrop-filter: blur(5px);
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn .3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity:0; transform:translateY(-20px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #aaa;
+        }
+        .close-modal:hover { color:#000; }
+
+        .upload-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: .2s;
+        }
+        .upload-zone:hover {
+            border-color:#06b6d4;
+            background:#f0f9ff;
+        }
+
+        .btn-primary {
+            background:#06b6d4;
+            color:#fff;
+            padding:12px;
+            width:100%;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        .hero-search {
+            display:flex;
+            max-width:600px;
+            margin:0 auto 20px;
+        }
+        .hero-search input {
+            flex:1;
+            padding:12px 16px;
+            border-radius:6px 0 0 6px;
+            border:1px solid #e5e7eb;
+        }
+        .hero-search button {
+            padding:12px 20px;
+            background:#06b6d4;
+            color:#fff;
+            border:none;
+            border-radius:0 6px 6px 0;
+            cursor:pointer;
+        }
+
+        /* Highlighted sections */
+        .section-group.highlighted {
+            margin-top:40px;
+            padding:24px;
+            background:#f9fafb;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(15,23,42,0.05);
+        }
+        .section-group.highlighted h3 {
+            display:flex;
+            align-items:center;
+            gap:10px;
+            font-size:1.3rem;
+            color:#111827;
+        }
+        .section-group.highlighted h3 small {
+            font-size:0.9rem;
+            color:#6b7280;
+            font-weight:400;
+        }
+
+        /* Auth header branding */
+        .auth-header {
+            padding:20px;
+            border-bottom:1px solid #e5e7eb;
+            background:#f9fafb;
+            border-radius:12px 12px 0 0;
+            text-align:center;
+        }
+        .auth-header .logo {
+            font-size:1.1rem;
+            font-weight:700;
+            margin-bottom:4px;
+            color:#06b6d4;
+        }
+        .auth-header h3 {
+            margin:4px 0 0;
+            font-size:1.1rem;
+            color:#111827;
+        }
+
+        .pe-input-group {
+            margin-bottom:16px;
+            padding:0 20px;
+        }
+        .pe-input-group label {
+            display:block;
+            margin-bottom:6px;
+            font-weight:500;
+            color:#374151;
+        }
+        .pe-input-group input {
+            width:100%;
+            padding:10px 12px;
+            border-radius:6px;
+            border:1px solid #d1d5db;
+        }
+        .pe-btn-primary {
+            width:calc(100% - 40px);
+            margin:8px 20px 20px;
+            padding:10px 12px;
+            border-radius:6px;
+            border:none;
+            background:#06b6d4;
+            color:#fff;
+            cursor:pointer;
+            font-weight:600;
+        }
+        .switch-auth {
+            text-align:center;
+            margin-bottom:20px;
+            color:#6b7280;
+        }
+        .switch-auth a {
+            color:#06b6d4;
+        }
+    </style>
 </head>
+
 <body>
-    <!-- Header -->
-    <header class="pe-header">
-        <div class="container header-content">
-            <div class="logo-section">
-                <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
-                <div class="location-pill">
-                    <i class="fas fa-map-marker-alt lightning-icon"></i>
-                    <span>Express delivery to <strong>400001 Mumbai</strong></span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-            </div>
-            <div class="nav-actions">
-                <!-- Login Trigger -->
-                <a href="#" class="nav-item" id="login-btn"><i class="far fa-user"></i> Hello, Log in</a>
-                <a href="#" class="nav-item"><i class="fas fa-percent"></i> Offers</a>
-                <!-- UPDATE: Cart Button hooked to openCart() -->
-                <a href="#" class="nav-item" onclick="openCart()">
-                    <i class="fas fa-shopping-cart"></i> Cart <span id="cart-count" class="badge-count" style="display:none;">0</span>
-                </a>
+
+<!-- Header -->
+<header class="pe-header">
+    <div class="container header-content">
+        <div class="logo-section">
+            <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+
+            <div class="location-pill">
+                <i class="fas fa-map-marker-alt lightning-icon"></i>
+                <span>Express delivery to <strong>400001 Mumbai</strong></span>
+                <i class="fas fa-chevron-down"></i>
             </div>
         </div>
-    </header>
 
-    <!-- Categories Bar -->
-    <nav class="pe-sub-nav">
-        <div class="container">
-            <a href="#" class="active">Medicine</a>
-            <a href="#">Lab Tests</a>
-            <a href="#">Healthcare</a>
-            <a href="#">Health Blogs</a>
-            <a href="#">PLUS Membership</a>
-            <a href="#">Offers</a>
-            <a href="#">Surgeries</a>
+        <div class="nav-actions">
+            <a href="#" class="nav-item" id="login-btn"><i class="far fa-user"></i> Hello, Log in</a>
+            <a href="#" class="nav-item"><i class="fas fa-percent"></i> Offers</a>
+
+            <a href="#" class="nav-item" onclick="openCart()">
+                <i class="fas fa-shopping-cart"></i> Cart
+                <span id="cart-count" class="badge-count" style="display:none;">0</span>
+            </a>
         </div>
-    </nav>
+    </div>
+</header>
 
-    <main class="container">
-        <!-- Hero/Search -->
-        <section class="pe-hero">
-                    <h2>What are you looking for?</h2>
+<!-- Category navigation -->
+<nav class="pe-sub-nav">
+    <div class="container">
+        <a href="#" class="active">Medicine</a>
+        <a href="#">Lab Tests</a>
+        <a href="#">Healthcare</a>
+        <a href="#">Health Blogs</a>
+        <a href="#">PLUS Membership</a>
+        <a href="#">Offers</a>
+        <a href="#">Surgeries</a>
+    </div>
+</nav>
 
-                    <div class="search-bar hero-search">
-                        <input id="product-search" placeholder="Search medicines..."/>
-                        <button id="search-btn" type="button">Search</button>
-                    </div>
+<main class="container">
 
-                    <div id="search-feedback" class="search-feedback"></div>
-                    
-                    
+    <!-- Search / Hero -->
+    <section class="pe-hero">
+        <h2>What are you looking for?</h2>
 
-                    <div class="filter-tags">
-                        <span><i class="fas fa-file-prescription"></i> Order with prescription. <a href="#">UPLOAD NOW ></a></span>
-                    </div>
+        <div class="search-bar hero-search">
+            <input id="medicine-query" placeholder="Search medicines..." />
+            <button onclick="handleSearch()">Search</button>
+        </div>
 
-                    <div id="search-results" class="results-grid"></div>
-        </section>
+        <div id="search-feedback" class="search-feedback"></div>
 
-        <!-- Icon Categories -->
-        <section class="pe-categories">
-            <div class="cat-card">
-                <div class="icon-box" style="background: #e3fdfd;"><i class="fas fa-pills" style="color: #00a699;"></i></div>
-                <span>Medicine</span>
-                <small>UPTO 20% OFF</small>
+        <div class="filter-tags">
+            <span>
+                <i class="fas fa-file-prescription"></i>
+                Order with prescription.
+                <a href="#" onclick="openPrescriptionModal(); return false;">UPLOAD NOW ></a>
+            </span>
+        </div>
+    </section>
+    <section id="results-section" style="display:none; margin-top:20px; margin-bottom:40px;">
+        <h3 style="color:#111827; margin-bottom:16px;">Search Results</h3>
+        <div id="results-container" class="pe-results-grid"></div>
+    </section>
+
+    <!-- Hero Banner with extra spacing between title and subtitle -->
+    <section class="hero-banner" style="margin:40px 0; background:linear-gradient(135deg,#06b6d4,#3b82f6); color:#fff; padding:40px; border-radius:32px; text-align:center;">
+        <h1 style="font-size:2.6rem; font-weight:700; margin:0 0 18px;">
+            Medicines Delivered in Minutes
+        </h1>
+        <p style="font-size:1.05rem; opacity:.95; margin:0 0 26px;">
+            Flat 20% off on your first order. Use <strong>MEDIFIRST</strong>
+        </p>
+        <button onclick="document.getElementById('new-launches-container').scrollIntoView({behavior:'smooth'})"
+                style="background:white; color:#06b6d4; border:none; padding:12px 30px; border-radius:999px; cursor:pointer; font-weight:600;">
+            Shop Now
+        </button>
+    </section>
+
+    <!-- Categories -->
+    <section class="pe-categories">
+        <div class="cat-card">
+            <div class="icon-box" style="background:#e3fdfd;"><i class="fas fa-pills"></i></div>
+            <span>Medicine</span><small>UPTO 20% OFF</small>
+        </div>
+
+        <div class="cat-card">
+            <div class="icon-box" style="background:#fff0f0;"><i class="fas fa-microscope"></i></div>
+            <span>Lab Tests</span><small>UPTO 70% OFF</small>
+        </div>
+
+        <div class="cat-card">
+            <div class="icon-box" style="background:#f0f4ff;"><i class="fas fa-user-md"></i></div>
+            <span>Doctors</span><small>BOOK NOW</small>
+        </div>
+
+        <div class="cat-card">
+            <div class="icon-box" style="background:#fff9db;"><i class="fas fa-plus-square"></i></div>
+            <span>PLUS</span><small>SAVE 5% EXTRA</small>
+        </div>
+
+        <div class="cat-card">
+            <div class="icon-box" style="background:#f3f0ff;"><i class="fas fa-percent"></i></div>
+            <span>Offers</span><small>LOWEST PRICES</small>
+        </div>
+    </section>
+
+    <!-- Search Results Section -->
+    <div id="loading" style="display:none; text-align:center; margin-top:20px;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+    </div>
+
+    <section id="results-section" style="display:none; margin-top:30px; margin-bottom:40px;">
+        <h3 style="color:#111827; margin-bottom:16px;">Search Results</h3>
+        <div id="results-container" class="pe-results-grid"></div>
+    </section>
+
+    <section class="section-group highlighted">
+        <h3>
+            New Launches
+            <small>New wellness range just for you!</small>
+        </h3>
+
+        <div class="carousel-wrapper">
+            <button class="carousel-btn carousel-btn-left"
+                    onclick="scrollCarousel('new-launches-container', -1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+
+            <div id="new-launches-container"
+                class="pe-results-grid carousel-strip"
+                style="min-height:150px; margin-top:16px;">
+                <div class="loading-spinner">Loading...</div>
             </div>
-            <div class="cat-card">
-                <div class="icon-box" style="background: #fff0f0;"><i class="fas fa-microscope" style="color: #ff6b6b;"></i></div>
-                <span>Lab Tests</span>
-                <small>UPTO 70% OFF</small>
-            </div>
-            <div class="cat-card">
-                <div class="icon-box" style="background: #f0f4ff;"><i class="fas fa-user-md" style="color: #4d96ff;"></i></div>
-                <span>Doctors</span>
-                <small>BOOK NOW</small>
-            </div>
-            <div class="cat-card">
-                <div class="icon-box" style="background: #fff9db;"><i class="fas fa-plus-square" style="color: #f1c40f;"></i></div>
-                <span>PLUS</span>
-                <small>SAVE 5% EXTRA</small>
-            </div>
-            <div class="cat-card">
-                <div class="icon-box" style="background: #f3f0ff;"><i class="fas fa-percent" style="color: #9b59b6;"></i></div>
-                <span>Offers</span>
-                <small>LOWEST PRICES</small>
-            </div>
-        </section>
 
-        <!-- Dynamic Results Area -->
-        <div id="loading" style="display: none; text-align: center; margin: 20px;"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
-        <section id="results-section" style="display: none; margin-bottom: 40px;">
-            <h3 style="color: #4f585e; margin-bottom: 20px;">Search Results</h3>
-            <div id="results-container" class="pe-results-grid"></div>
-        </section>
+            <button class="carousel-btn carousel-btn-right"
+                    onclick="scrollCarousel('new-launches-container', 1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
 
-        <!-- NEW: New Launches Section -->
-        <section class="section-group">
-            <h3>New Launches <small>New wellness range just for you!</small></h3>
-            <div class="pe-results-grid">
-                <!-- Fake Product 1 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-prescription-bottle-alt fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>Volini Max Roll-On</h4>
-                    <p style="font-size:13px; color:#777;">Pain Relief 50ml</p>
-                    <div class="price">$12.50 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(15% OFF)</span></div>
-                    <!-- Add to Cart (Hardcoded ID for demo) -->
-                    <button class="add-btn" onclick="addToCart('fake_1', 'Volini Max Roll-On', 12.50, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 2 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-pump-soap fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>SoftSkin Baby Lotion</h4>
-                    <p style="font-size:13px; color:#777;">Moisturizing 200ml</p>
-                    <div class="price">$25.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(5% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart('fake_2', 'SoftSkin Baby Lotion', 25.00, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 3 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-capsules fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>VitalMulti Women</h4>
-                    <p style="font-size:13px; color:#777;">60 Tablets</p>
-                    <div class="price">$45.00 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(10% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart('fake_3', 'VitalMulti Women', 45.00, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 4 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-vial fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>Iron+ Syrup</h4>
-                    <p style="font-size:13px; color:#777;">Hemoglobin Support</p>
-                    <div class="price">$18.99 <span style="font-size:12px; color:#e74c3c; font-weight:400;">(20% OFF)</span></div>
-                    <button class="add-btn" onclick="addToCart('fake_4', 'Iron+ Syrup', 18.99, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-            </div>
-        </section>
+    <!-- Trending Near You (carousel) -->
+    <section class="section-group" style="margin-top:40px;">
+        <h3 style="font-size:1.2rem; color:#111827;">
+            Trending Near You
+            <small style="font-size:0.9rem; color:#6b7280; font-weight:400;">
+                Popular in Mumbai
+            </small>
+        </h3>
 
-        <!-- NEW: Trending Near You Section -->
-        <section class="section-group" style="margin-top: 40px;">
-            <h3>Trending Near You <small>Popular in Mumbai</small></h3>
-            <div class="pe-results-grid">
-                <!-- Fake Product 5 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-mask fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>N95 Face Mask</h4>
-                    <p style="font-size:13px; color:#777;">Pack of 5</p>
-                    <div class="price">$10.00</div>
-                    <button class="add-btn" onclick="addToCart('fake_5', 'N95 Face Mask', 10.00, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 6 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-thermometer-half fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>Digital Thermometer</h4>
-                    <p style="font-size:13px; color:#777;">Fast Reading</p>
-                    <div class="price">$15.50</div>
-                    <button class="add-btn" onclick="addToCart('fake_6', 'Digital Thermometer', 15.50, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 7 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-first-aid fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>First Aid Kit</h4>
-                    <p style="font-size:13px; color:#777;">Standard Box</p>
-                    <div class="price">$30.00</div>
-                    <button class="add-btn" onclick="addToCart('fake_7', 'First Aid Kit', 30.00, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-                <!-- Fake Product 8 -->
-                <div class="medicine-card">
-                    <div class="img-placeholder" style="height:120px; background:#f9f9f9; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
-                        <i class="fas fa-hand-holding-water fa-3x" style="color:#ddd;"></i>
-                    </div>
-                    <h4>Hand Sanitizer</h4>
-                    <p style="font-size:13px; color:#777;">Alcohol Based 500ml</p>
-                    <div class="price">$8.00</div>
-                    <button class="add-btn" onclick="addToCart('fake_8', 'Hand Sanitizer', 8.00, 'demo_pharmacy')">Add to Cart</button>
-                </div>
-            </div>
-        </section>
+        <div class="carousel-wrapper">
+            <button class="carousel-btn carousel-btn-left"
+                    onclick="scrollCarousel('trending-container', -1)">
+                <i class="fas fa-chevron-left"></i>
+            </button>
 
-        <!-- Promo Banners (Existing) -->
-        <section class="pe-banners" style="margin-top: 40px;">
-            <div class="banner-box">
-                <div class="banner-text">
-                    <h3>Generic Medicines</h3>
-                    <p>Flat 50% off on generic substitutes.</p>
-                </div>
-                <div class="banner-icon"><i class="fas fa-tablets fa-3x" style="color: #10847e; opacity: 0.2;"></i></div>
+            <div id="trending-container"
+                class="pe-results-grid carousel-strip"
+                style="min-height:150px; margin-top:16px;">
+                <div class="loading-spinner">Loading...</div>
             </div>
-            <div class="banner-box" style="background: #fff5e6;">
-                <div class="banner-text">
-                    <h3>Immunity Boosters</h3>
-                    <p>Protect your family this season.</p>
-                </div>
-                <div class="banner-icon"><i class="fas fa-shield-alt fa-3x" style="color: #e67e22; opacity: 0.2;"></i></div>
-            </div>
-        </section>
-    </main>
 
-    <!-- Footer (Added) -->
-    <footer>
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-col">
-                    <h4>Company</h4>
-                    <a href="#">About Us</a>
-                    <a href="#">Careers</a>
-                    <a href="#">Blog</a>
-                    <a href="#">Partner with MediFind</a>
-                    <a href="#">Sell at MediFind</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Our Services</h4>
-                    <a href="#">Order Medicine</a>
-                    <a href="#">Healthcare Products</a>
-                    <a href="#">Lab Tests</a>
-                    <a href="#">Find a Doctor</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Featured Categories</h4>
-                    <a href="#">Personal Care</a>
-                    <a href="#">Health Food and Drinks</a>
-                    <a href="#">Skin Care</a>
-                    <a href="#">Home Care</a>
-                    <a href="#">Ayurvedic Care</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Need Help</h4>
-                    <a href="#">Browse All Medicines</a>
-                    <a href="#">Browse All Molecules</a>
-                    <a href="#">Browse All Cities</a>
-                    <a href="#">FAQs</a>
-                </div>
-                <div class="footer-col">
-                    <h4>Follow Us On</h4>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-youtube"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                    </div>
-                </div>
+            <button class="carousel-btn carousel-btn-right"
+                    onclick="scrollCarousel('trending-container', 1)">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+
+
+    <!-- Promo Banners -->
+    <section class="pe-banners" style="margin-top:40px;">
+        <div class="banner-box">
+            <div class="banner-text">
+                <h3>Generic Medicines</h3>
+                <p>Flat 50% off on generic substitutes.</p>
             </div>
-            <div class="footer-bottom">
-                <p>Our Payment Partners</p>
-                <div class="payment-icons">
-                    <i class="fab fa-cc-visa fa-2x"></i>
-                    <i class="fab fa-cc-mastercard fa-2x"></i>
-                    <i class="fab fa-cc-amex fa-2x"></i>
-                    <i class="fab fa-cc-amazon-pay fa-2x"></i>
+            <i class="fas fa-tablets banner-icon"></i>
+        </div>
+
+        <div class="banner-box" style="background:#fff5e6;">
+            <div class="banner-text">
+                <h3>Immunity Boosters</h3>
+                <p>Protect your family this season.</p>
+            </div>
+            <i class="fas fa-shield-alt banner-icon"></i>
+        </div>
+    </section>
+
+</main>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+
+        <div class="footer-grid">
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="#">About Us</a><a href="#">Careers</a><a href="#">Blog</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Our Services</h4>
+                <a href="#">Order Medicine</a><a href="#">Lab Tests</a><a href="#">Find a Doctor</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Featured</h4>
+                <a href="#">Skin Care</a><a href="#">Ayurvedic Care</a><a href="#">Personal Care</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Help</h4>
+                <a href="#">FAQs</a><a href="#">Browse All Medicines</a>
+            </div>
+
+            <div class="footer-col">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <i class="fab fa-instagram"></i>
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-youtube"></i>
                 </div>
-                <p class="copyright">© 2024 MediFind. All Rights Reserved.</p>
             </div>
         </div>
-    </footer>
 
-    <!-- AUTH MODAL (Blurred Background) -->
-    <div id="auth-modal" class="modal-backdrop">
+        <p style="margin-top:20px;">© 2024 MediFind. All Rights Reserved.</p>
+    </div>
+</footer>
+
+<!-- Prescription Upload Modal -->
+<div id="prescription-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" style="padding:20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e5e7eb;">
+            <h3 style="margin:0;">Upload Prescription</h3>
+            <span class="close-modal" onclick="closePrescriptionModal()">&times;</span>
+        </div>
+
+        <div class="modal-body" style="padding:20px;">
+            <div class="upload-zone" onclick="document.getElementById('rx-file').click()">
+                <i class="fas fa-cloud-upload-alt" style="font-size:40px; color:#06b6d4;"></i>
+                <h4>Click to Upload or Drag & Drop</h4>
+                <p>Supported: JPG, PNG, PDF</p>
+                <input id="rx-file" type="file" hidden accept="image/*,.pdf" onchange="handleFileSelect(this)">
+            </div>
+
+            <div id="file-name" style="margin-top:10px; text-align:center; font-weight:600;"></div>
+
+            <button class="btn-primary" onclick="closePrescriptionModal(); alert('Prescription uploaded!');">
+                Submit
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Auth Modal -->
+<div id="auth-modal" class="modal-backdrop">
         <div class="modal-content auth-container">
-            <span class="close-modal" onclick="closeAuthModal()">&times;</span>
+            <span class="close-modal" onclick="closeAuthModal()" style="position:absolute; right:20px; top:20px; cursor:pointer; font-size:24px;">&times;</span>
             
-            <!-- Login View -->
             <div id="login-view">
                 <div class="auth-header">
                     <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
-                    <h3>Quick Login</h3>
+                    <h3 style="margin:0;">Login</h3>
                 </div>
-                <form id="login-form">
+                <form id="login-form" style="padding:20px;">
                     <div class="pe-input-group">
                         <label>Username</label>
                         <input type="text" id="login-username" required>
@@ -294,19 +445,18 @@
                     </div>
                     <button type="submit" class="pe-btn-primary">Login</button>
                 </form>
-                <p class="switch-auth">New to MediFind? <a href="#" onclick="showSignup()">Create an account</a></p>
+                <p class="switch-auth">New here? <a href="#" onclick="showSignup()">Create account</a></p>
             </div>
 
-            <!-- Signup View -->
             <div id="signup-view" style="display: none;">
                 <div class="auth-header">
                     <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
-                    <h3>Register</h3>
+                    <h3 style="margin:0;">Create Account</h3>
                 </div>
-                <form id="signup-form">
+                <form id="signup-form" style="padding:20px;">
                     <div class="pe-input-group">
                         <label>Full Name</label>
-                        <input type="text" id="reg-name">
+                        <input type="text" id="reg-name" required>
                     </div>
                     <div class="pe-input-group">
                         <label>Email</label>
@@ -324,7 +474,7 @@
                         <label>I am a:</label>
                         <select id="reg-role">
                             <option value="patient">User (Buyer)</option>
-                            <option value="pharmacy">Pharmacist (Seller)</option>
+                            <option value="pharmacy">Pharmacy (Seller)</option>
                             <option value="delivery">Delivery Partner</option>
                         </select>
                     </div>
@@ -333,10 +483,19 @@
                 <p class="switch-auth">Already have an account? <a href="#" onclick="showLogin()">Login</a></p>
             </div>
         </div>
-    </div>
+</div>
+<!-- JS Files -->
+<script src="js/app.js"></script>
+<script src="js/home.js"></script>
 
-    <script src="js/app.js"></script>
-    <script src="js/search.js"></script>
+<script>
+document.getElementById("medicine-query").addEventListener("keypress", e => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        handleSearch();
+    }
+});
+</script>
+
 </body>
 </html>
-

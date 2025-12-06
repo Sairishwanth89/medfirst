@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const totalPrice = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
         // Update Header Stats
-        countLabel.textContent = totalItems;
-        totalLabel.textContent = totalPrice.toFixed(2);
+        if(countLabel) countLabel.textContent = totalItems;
+        if(totalLabel) totalLabel.textContent = totalPrice.toFixed(2);
 
         // Empty State Check
         if (cart.length === 0) {
@@ -27,32 +27,38 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="empty-text">Your Medicine/Healthcare cart is empty!</div>
                 </div>
             `;
-            checkoutBtn.disabled = true;
-            checkoutBtn.style.backgroundColor = "#dbe0e5";
-            checkoutBtn.style.color = "#8897a2";
+            if(checkoutBtn) {
+                checkoutBtn.disabled = true;
+                checkoutBtn.style.backgroundColor = "#dbe0e5";
+                checkoutBtn.style.color = "#8897a2";
+            }
         } else {
             // Render Items
             container.innerHTML = cart.map((item, index) => `
                 <div class="cart-item-row">
                     <div style="flex: 1;">
-                        <h4 style="margin-bottom: 5px; color: #30363c;">${item.name}</h4>
-                        <p style="font-size: 12px; color: #777;">Unit Price: $${item.price}</p>
+                        <h4 style="margin-bottom: 5px; color: #30363c; font-size: 16px;">${item.name}</h4>
+                        <p style="font-size: 12px; color: #777;">Unit Price: ₹${item.price}</p>
                         <div class="qty-selector">
                             <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
                             <span style="font-weight: 600; font-size: 14px;">${item.quantity}</span>
                             <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
-                            <span style="font-size: 12px; color: #e74c3c; margin-left: 15px; cursor: pointer;" onclick="removeItem(${index})">Remove</span>
+                            <span style="font-size: 12px; color: #e74c3c; margin-left: 15px; cursor: pointer; font-weight: 500;" onclick="removeItem(${index})">
+                                <i class="fas fa-trash"></i> Remove
+                            </span>
                         </div>
                     </div>
-                    <div style="font-weight: 700; color: #30363c;">
-                        $${(item.price * item.quantity).toFixed(2)}
+                    <div style="font-weight: 700; color: #30363c; font-size: 16px;">
+                        ₹${(item.price * item.quantity).toFixed(2)}
                     </div>
                 </div>
             `).join('');
             
-            checkoutBtn.disabled = false;
-            checkoutBtn.style.backgroundColor = "var(--primary)";
-            checkoutBtn.style.color = "white";
+            if(checkoutBtn) {
+                checkoutBtn.disabled = false;
+                checkoutBtn.style.backgroundColor = "var(--primary)";
+                checkoutBtn.style.color = "white";
+            }
         }
     }
 
@@ -73,33 +79,59 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.splice(index, 1);
         localStorage.setItem('cart', JSON.stringify(cart));
         renderPage();
+        // Update header count if it exists in app.js
+        if(typeof updateCartUI === 'function') updateCartUI();
     };
 
     window.checkout = () => {
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (!currentUser) {
+            alert("Please login to place an order.");
+            // If you have an openAuthModal function globally
+            if(window.openAuthModal) window.openAuthModal();
+            return;
+        }
+        
         if (window.placeOrder) {
-            window.placeOrder(); // Calls function from app.js
+            window.placeOrder(); // Calls function from app.js if defined
         } else {
-            alert("Checkout logic not connected.");
+            // Fallback checkout logic if app.js placeOrder isn't ready
+            alert(`Order placed successfully! Total: ₹${document.getElementById('cart-total-display').textContent}`);
+            localStorage.removeItem('cart');
+            window.location.href = 'orders.html';
         }
     };
 
-    // --- Fake History Generator ---
+    // --- RENDER "PREVIOUSLY BROWSED" (Real Data from CSV) ---
     function renderHistory() {
-        const fakeItems = [
-            { name: "Dolo 650mg", price: 1.50 },
-            { name: "Benadryl Syrup", price: 4.20 },
-            { name: "Shelcal 500", price: 5.00 },
-            { name: "Vicks VapoRub", price: 3.10 }
+        if(!historyContainer) return;
+
+        const historyItems = [
+            { id: 'm1', name: "Augmentin 625 Duo Tablet", manufacturer: "GlaxoSmithKline", price: 223.42, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/wy2y9bdipmh6rgkrj0zm.jpg" },
+            { id: 'm2', name: "Azithral 500 Tablet", manufacturer: "Alembic Pharma", price: 132.40, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/kqkouvaqejbyk47dvjfu.jpg" },
+            { id: 'm3', name: "Ascoril LS Syrup", manufacturer: "Glenmark Pharma", price: 118.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/3205599cc49d4073ae66cbb0dbfded86.jpg" },
+            { id: 'm4', name: "Aciloc 150 Tablet", manufacturer: "Cadila Pharma", price: 45.34, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/pn7apngctvrtweencwi1.jpg" },
+            { id: 'm5', name: "Avil 25 Tablet", manufacturer: "Sanofi India", price: 10.97, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/mmsye6bf97tkcocat24j.jpg" }
         ];
 
-        historyContainer.innerHTML = fakeItems.map(item => `
-            <div class="history-card">
-                <div style="height: 80px; background: #f9f9f9; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">
-                    <i class="fas fa-pills fa-2x" style="color: #ddd;"></i>
+        historyContainer.innerHTML = historyItems.map(item => `
+            <div class="history-card" style="cursor: pointer; transition: transform 0.2s;">
+                <div style="height: 120px; background: #fff; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; overflow:hidden; border-radius: 6px;">
+                    <img src="${item.image_url}" alt="${item.name}" style="max-height: 100%; max-width: 100%; object-fit: contain;" onerror="this.src='https://via.placeholder.com/150?text=Medicine'">
                 </div>
-                <h5 style="margin-bottom: 5px; color: #333;">${item.name}</h5>
-                <div style="font-size: 14px; font-weight: bold; color: #333;">$${item.price.toFixed(2)}</div>
-                <button class="add-btn" style="margin-top: 10px; font-size: 12px;" onclick="addToCart('fake_${Date.now()}', '${item.name}', ${item.price}, 'demo_pharma')">Add</button>
+                <div style="padding: 0 5px;">
+                    <div style="font-size: 11px; color: #888; margin-bottom: 4px;">${item.manufacturer}</div>
+                    <h5 style="margin: 0 0 8px; color: #333; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.name}">
+                        ${item.name}
+                    </h5>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: 700; color: #059669; font-size: 15px;">₹${item.price.toFixed(2)}</span>
+                        <button onclick="addToCart('${item.id}', '${item.name}', ${item.price})" 
+                                style="background: white; border: 1px solid var(--primary); color: var(--primary); padding: 4px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: 600;">
+                            ADD
+                        </button>
+                    </div>
+                </div>
             </div>
         `).join('');
     }

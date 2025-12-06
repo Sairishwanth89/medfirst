@@ -4,109 +4,315 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pharmacy Dashboard - MediFind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/pharmacy-settings.css">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* Dashboard Specific Grid & Cards (Not in settings.css) */
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 30px; 
+        }
+        .action-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); 
+            cursor: pointer; 
+            transition: transform 0.2s, box-shadow 0.2s; 
+            border: 1px solid #f1f5f9; 
+            text-align: center;
+        }
+        .action-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05); 
+            border-color: var(--primary); 
+        }
+        .action-card i { 
+            font-size: 32px; 
+            margin-bottom: 15px; 
+            color: var(--primary); 
+            background: #e0f2fe;
+            padding: 15px;
+            border-radius: 50%;
+        }
+        
+        /* Data Tables */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid #f1f5f9;
+        }
+        .data-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            background: white; 
+        }
+        .data-table th { 
+            background: #f8fafc; 
+            text-align: left; 
+            padding: 16px; 
+            font-weight: 600; 
+            color: #475569; 
+            border-bottom: 2px solid #e2e8f0; 
+            font-size: 14px;
+        }
+        .data-table td { 
+            padding: 16px; 
+            border-bottom: 1px solid #f1f5f9; 
+            color: #334155; 
+            font-size: 14px; 
+        }
+        .data-table tr:hover { background-color: #f8fafc; }
+        
+        /* Badges */
+        .badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.3px; }
+        .badge.pending { background: #fff7ed; color: #c2410c; }
+        .badge.confirmed { background: #f0fdf4; color: #15803d; }
+        .badge.cancelled { background: #fef2f2; color: #b91c1c; }
+        .badge.low-stock { background: #fef2f2; color: #b91c1c; }
+        .badge.in-stock { background: #f0fdf4; color: #15803d; }
+
+        /* Inventory Controls */
+        .inventory-controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 250px; position: relative; }
+        .search-box input { width: 100%; padding: 12px 12px 12px 40px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        .search-box i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+        .sort-box select { padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; cursor: pointer; background: white; color: #475569; }
+    </style>
 </head>
-<body>
-    <header class="pe-header">
+<body class="delivery-body">
+    
+    <header class="glass-header">
         <div class="container header-content">
-            <div class="logo"><i class="fas fa-heartbeat"></i> MediFind Partner</div>
-            <div class="nav-actions">
-                <span id="pharmacy-name" style="font-weight: 600;">My Pharmacy</span>
-                <button id="logout-btn" type="button" class="btn btn-ghost" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            <div class="brand">
+                <i class="fas fa-clinic-medical"></i> MediFind <span class="badge-role">Pharmacy</span>
+            </div>
+            <div class="user-menu">
+                <div class="user-info">
+                    <span class="greeting">Welcome,</span>
+                    <span id="pharmacy-name" class="driver-name">Loading...</span>
+                </div>
+                <button id="logout-btn" class="logout-btn" onclick="window.MediFind.logout()" title="Logout">
+                    <i class="fas fa-power-off"></i>
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="container" style="padding-top: 30px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>Dashboard</h2>
-            <button class="pe-btn-primary" style="width: auto;" onclick="openAddModal()">+ Add Medicine</button>
+    <main class="container dashboard-wrapper">
+        
+        <div class="dashboard-tabs">
+            <button class="tab-btn active" onclick="showTab('dashboard', this)"> <i class="fas fa-chart-pie"></i> Dashboard </button>
+            <button class="tab-btn" onclick="showTab('orders', this)"> <i class="fas fa-list-ul"></i> Orders </button>
+            <button class="tab-btn" onclick="showTab('inventory', this)"> <i class="fas fa-boxes"></i> Inventory </button>
+            <button class="tab-btn" onclick="showTab('settings', this)"> <i class="fas fa-cog"></i> Settings </button>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="pe-banners" style="margin-bottom: 30px;">
-            <div class="banner-box">
-                <div class="banner-text">
-                    <h3>Total Orders</h3>
-                    <p style="font-size: 24px; font-weight: 700;">12</p>
+        <div id="alert-section" style="display: none;"></div>
+
+        <div id="dashboard-tab">
+            <section class="stats-overview">
+                <div class="stat-card active-card">
+                    <div class="icon-circle"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="stat-info">
+                        <h3>Pending Orders</h3>
+                        <h1 id="stat-pending">0</h1>
+                    </div>
                 </div>
-                <div class="banner-icon"><i class="fas fa-shopping-bag fa-2x" style="color: var(--primary);"></i></div>
-            </div>
-            <div class="banner-box" style="background: #fff0f0;">
-                <div class="banner-text">
-                    <h3 style="color: #e74c3c;">Low Stock</h3>
-                    <p style="font-size: 24px; font-weight: 700; color: #e74c3c;">4 Items</p>
+                <div class="stat-card transit-card">
+                    <div class="icon-circle"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="stat-info">
+                        <h3>Low Stock Items</h3>
+                        <h1 id="stat-low">0</h1>
+                    </div>
                 </div>
-                <div class="banner-icon"><i class="fas fa-exclamation-triangle fa-2x" style="color: #e74c3c;"></i></div>
+                <div class="stat-card done-card">
+                    <div class="icon-circle"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="stat-info">
+                        <h3>Total Revenue</h3>
+                        <h1 id="stat-revenue">₹0</h1>
+                    </div>
+                </div>
+            </section>
+
+            <h3 style="margin: 30px 0 20px; color: #334155;">Quick Actions</h3>
+            <div class="dashboard-grid">
+                <div class="action-card" onclick="window.location.href='add-medicine.html'">
+                    <i class="fas fa-plus-circle"></i>
+                    <h4>Add Medicine</h4>
+                    <p style="color:#64748b; font-size:14px;">Add new inventory items</p>
+                </div>
+                <div class="action-card" onclick="document.querySelector('button[onclick*=\'orders\']').click()">
+                    <i class="fas fa-clipboard-check"></i>
+                    <h4>Manage Orders</h4>
+                    <p style="color:#64748b; font-size:14px;">Process pending requests</p>
+                </div>
+                <div class="action-card" onclick="document.querySelector('button[onclick*=\'settings\']').click()">
+                    <i class="fas fa-user-edit"></i>
+                    <h4>Update Profile</h4>
+                    <p style="color:#64748b; font-size:14px;">Change hours & details</p>
+                </div>
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div style="margin-bottom: 20px; border-bottom: 1px solid #eee;">
-            <button class="pe-btn-primary" style="background: transparent; color: var(--primary); border-bottom: 2px solid var(--primary); border-radius: 0;" onclick="showTab('orders')">Orders</button>
-            <button class="pe-btn-primary" style="background: transparent; color: #666; border-radius: 0;" onclick="showTab('inventory')">Inventory</button>
-        </div>
-
-        <!-- Orders Tab -->
-        <div id="orders-tab">
-            <div class="pe-results-grid" id="orders-container">
-                <!-- Orders will be injected here -->
-                <div style="text-align: center; grid-column: 1/-1; padding: 40px; color: #999;">Loading orders...</div>
+        <div id="orders-tab" style="display: none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; color:#1e293b;">Customer Orders</h2>
+                <button class="action-btn" onclick="loadOrders()"><i class="fas fa-sync"></i> Refresh</button>
+            </div>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="orders-table-body"></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Inventory Tab -->
         <div id="inventory-tab" style="display: none;">
-            <div class="pe-results-grid" id="inventory-container">
-                <!-- Inventory will be injected here -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="margin:0; color:#1e293b;">Medicine Inventory</h2>
+                <button class="action-btn" onclick="window.location.href='add-medicine.html'">
+                    <i class="fas fa-plus"></i> Add New
+                </button>
+            </div>
+
+            <div class="inventory-controls">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="inventory-search" placeholder="Search medicines by name or manufacturer...">
+                </div>
+                <div class="sort-box">
+                    <select id="inventory-sort">
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="stock_low">Stock (Low to High)</option>
+                        <option value="stock_high">Stock (High to Low)</option>
+                        <option value="price_low">Price (Low to High)</option>
+                        <option value="price_high">Price (High to Low)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead><tr><th>Name</th><th>Manufacturer</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr></thead>
+                    <tbody id="inventory-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="settings-tab" style="display: none;">
+            <div class="settings-container">
+                <div class="settings-sidebar">
+                    <div class="settings-nav-item active" onclick="switchSetting('profile')">
+                        <i class="fas fa-store"></i> Profile
+                    </div>
+                    <div class="settings-nav-item" onclick="switchSetting('security')">
+                        <i class="fas fa-lock"></i> Security
+                    </div>
+                    <div class="settings-nav-item" onclick="switchSetting('hours')">
+                        <i class="fas fa-clock"></i> Hours
+                    </div>
+                    <div class="settings-nav-item" onclick="switchSetting('notifications')">
+                        <i class="fas fa-bell"></i> Alerts
+                    </div>
+                </div>
+                
+                <div class="settings-content">
+                    <div id="set-profile" class="settings-section active">
+                        <h3 class="section-title">Business Profile</h3>
+                        <form id="profile-form">
+                            <div class="form-group">
+                                <label>Pharmacy Name</label>
+                                <input type="text" id="setting-name" disabled>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="setting-email" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone Number</label>
+                                    <input type="tel" id="setting-phone">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Address</label>
+                                <textarea id="setting-address" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn-save">Save Changes</button>
+                        </form>
+                    </div>
+
+                    <div id="set-security" class="settings-section">
+                        <h3 class="section-title">Security Settings</h3>
+                        <form onsubmit="alert('Password updated!'); return false;">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" required>
+                            </div>
+                            <button type="submit" class="btn-save">Update Password</button>
+                        </form>
+                    </div>
+
+                    <div id="set-hours" class="settings-section">
+                        <h3 class="section-title">Operating Hours</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Opening Time</label>
+                                <input type="time" value="09:00">
+                            </div>
+                            <div class="form-group">
+                                <label>Closing Time</label>
+                                <input type="time" value="21:00">
+                            </div>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span>Open on Weekends</span>
+                        </div>
+                        <button class="btn-save" onclick="alert('Hours saved!')">Save Hours</button>
+                    </div>
+
+                    <div id="set-notifications" class="settings-section">
+                        <h3 class="section-title">Notification Preferences</h3>
+                        <div class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span>Low Stock Alerts</span>
+                        </div>
+                        <div class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span>New Order Emails</span>
+                        </div>
+                        <button class="btn-save" onclick="alert('Preferences saved!')">Save Preferences</button>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <!-- Add Medicine Modal -->
-    <div id="add-modal" class="modal-backdrop">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeAddModal()">&times;</span>
-            <div class="auth-header"><h3>Add New Stock</h3></div>
-            <form id="add-med-form">
-                <div class="pe-input-group">
-                    <label>Medicine Name</label>
-                    <input type="text" id="med-name" required placeholder="e.g., Dolo 650">
-                </div>
-                <div class="pe-input-group">
-                    <label>Generic Name</label>
-                    <input type="text" id="med-generic" placeholder="e.g., Paracetamol">
-                </div>
-                <div class="pe-input-group">
-                    <label>Manufacturer</label>
-                    <input type="text" id="med-manufacturer" placeholder="e.g., Micro Labs">
-                </div>
-                <div class="pe-input-group">
-                    <label>Description</label>
-                    <input type="text" id="med-desc" placeholder="Short description">
-                </div>
-                <div class="pe-input-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div>
-                        <label>Price</label>
-                        <input type="number" id="med-price" step="0.01" required>
-                    </div>
-                    <div>
-                        <label>Quantity</label>
-                        <input type="number" id="med-qty" required>
-                    </div>
-                </div>
-                <div class="pe-input-group">
-                     <label>
-                        <input type="checkbox" id="med-rx"> Requires Prescription
-                     </label>
-                </div>
-                <button type="submit" class="pe-btn-primary">Add to Inventory</button>
-            </form>
-        </div>
-    </div>
-
     <script src="js/app.js"></script>
     <script src="js/pharmacy.js"></script>
+    <script>
+        // Inline settings switcher
+        function switchSetting(id) {
+            document.querySelectorAll('.settings-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('set-' + id).classList.add('active');
+            
+            document.querySelectorAll('.settings-nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active'); // Fixed event targeting
+        }
+    </script>
 </body>
 </html>

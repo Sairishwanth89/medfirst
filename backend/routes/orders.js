@@ -1,79 +1,92 @@
 const express = require('express');
-const Order = require('../models/Order');
-const Medicine = require('../models/Medicine');
-const auth = require('../middleware/auth');
-const { publish } = require('../core/rabbitmq'); 
 const router = express.Router();
+const Order = require('../models/Order');
+const Product = require('../models/Product'); // Required for stock updates
+const auth = require('../middleware/auth');
 
+// Create a new order (User places order -> Stock decreases)
 router.post('/', auth, async (req, res) => {
   try {
-    const { pharmacy_id, delivery_address, notes, items } = req.body;
-    let total_amount = 0;
-    const orderItemsData = [];
+    const { items, total_amount, delivery_address } = req.body;
 
-    for (let item of items) {
-      const medicine = await Medicine.findById(item.medicine_id);
-      if (!medicine) throw new Error(`Medicine ${item.medicine_id} not found`);
-      if (medicine.stock_quantity < item.quantity) throw new Error(`Insufficient stock for ${medicine.name}`);
+    // 1. Verify Stock for ALL items first
+    for (const item of items) {
+      const product = await Product.findById(item.medicine_id);
+      if (!product) {
+        return res.status(404).json({ detail: `Medicine not found: ${item.medicine_id}` });
+      }
+      if (product.stock_quantity < item.quantity) {
+        return res.status(400).json({ detail: `Insufficient stock for ${product.name}. Only ${product.stock_quantity} left.` });
+      }
+    }
 
-      const subtotal = medicine.unit_price * item.quantity;
-      total_amount += subtotal;
-      
-      orderItemsData.push({
-        medicine_id: medicine._id,
-        quantity: item.quantity,
-        unit_price: medicine.unit_price,
-        subtotal
+    // 2. Create Order
+    const newOrder = new Order({
+      user_id: req.user.id,
+      items,
+      total_amount,
+      delivery_address,
+      status: 'pending'
+    });
+    await newOrder.save();
+
+    // 3. Decrement Stock (Real-time update)
+    // We use $inc: { stock_quantity: -qty } to safely subtract
+    for (const item of items) {
+      await Product.findByIdAndUpdate(item.medicine_id, {
+        $inc: { stock_quantity: -item.quantity }
       });
     }
 
-    const order = await Order.create({
-      user_id: req.user._id,
-      pharmacy_id,
-      total_amount,
-      delivery_address,
-      notes,
-      status: 'pending',
-      items: orderItemsData
-    });
+    res.status(201).json(newOrder);
 
-    // Publish to RabbitMQ
-    try {
-      publish('orders_queue', { order_id: order._id });
-    } catch (err) {
-      console.error("RabbitMQ Publish Error:", err);
-    }
-
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(400).json({ detail: error.message });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ detail: 'Server Error' });
   }
 });
 
-router.get('/', auth, async (req, res) => {
-  try {
-    const orders = await Order.find({ user_id: req.user._id }).populate('items.medicine_id');
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ detail: error.message });
-  }
-});
-
+// Get Pharmacy Orders
 router.get('/pharmacy/me', auth, async (req, res) => {
-  try {
-    const Pharmacy = require('../models/Pharmacy');
-    const pharmacy = await Pharmacy.findOne({ owner_id: req.user._id });
-    
-    if (!pharmacy) return res.status(404).json({ detail: 'Pharmacy not found' });
+    try {
+        if (req.user.role !== 'pharmacy') return res.status(403).json({detail: 'Access denied'});
+        
+        // Find orders containing items sold by this pharmacy
+        // Note: In a real app, you'd filter specific items. 
+        // For this pilot, we return orders that *have* medicines from this pharmacy.
+        const myProducts = await Product.find({ pharmacy_id: req.user.id }).select('_id');
+        const productIds = myProducts.map(p => p._id);
 
-    const orders = await Order.find({ pharmacy_id: pharmacy._id })
-      .populate('items.medicine_id')
-      .sort({ created_at: -1 });
-      
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ detail: error.message });
-  }
+        const orders = await Order.find({
+            'items.medicine_id': { $in: productIds }
+        })
+        .populate('user_id', 'username phone')
+        .populate('items.medicine_id', 'name unit_price')
+        .sort({ created_at: -1 });
+
+        res.json(orders);
+    } catch (err) {
+        res.status(500).json({ detail: err.message });
+    }
+});
+
+// Update Order Status (Accept/Reject)
+router.patch('/:id/:action', auth, async (req, res) => {
+    try {
+        const { id, action } = req.params;
+        const statusMap = { 'confirm': 'confirmed', 'cancel': 'cancelled' };
+        
+        if (!statusMap[action]) return res.status(400).json({ detail: 'Invalid action' });
+
+        const order = await Order.findByIdAndUpdate(
+            id, 
+            { status: statusMap[action] },
+            { new: true }
+        );
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ detail: err.message });
+    }
 });
 
 module.exports = router;

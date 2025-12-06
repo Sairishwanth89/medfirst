@@ -28,12 +28,16 @@ function syncGlobals() {
 
     // reliable centralized logout
     window.MediFind.logout = () => {
+        console.log("Logging out...");
         window.MediFind.setAuth(null, null);
         // keep other localStorage keys (cart) intact
-        window.location.href = 'index.html';
+        window.location.replace('index.html');
     };
 }
 syncGlobals();
+
+// Global fallback for HTML onclick attributes
+window.logout = window.MediFind.logout;
 
 // Initialize Cart from LocalStorage
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -194,45 +198,52 @@ if(loginForm) {
 
 // Signup Handler
 const signupForm = document.getElementById('signup-form');
-if(signupForm) {
-    signupForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            full_name: document.getElementById('reg-name').value,
-            email: document.getElementById('reg-email').value,
-            username: document.getElementById('reg-username').value,
-            password: document.getElementById('reg-password').value,
-            role: document.getElementById('reg-role').value // Ensure this ID matches HTML
-        };
-        
-        try {
-            const res = await fetch(`${API_URL}/auth/signup`, {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            if(!res.ok) throw new Error('Signup failed');
+    if(signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = signupForm.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Creating Account...";
+            btn.disabled = true;
+
+            const data = {
+                full_name: document.getElementById('reg-name').value,
+                email: document.getElementById('reg-email').value,
+                username: document.getElementById('reg-username').value,
+                password: document.getElementById('reg-password').value,
+                role: document.getElementById('reg-role').value
+            };
             
-            // Auto-login after signup
-             const responseData = await res.json();
-             if(responseData.access_token) {
-                 localStorage.setItem('authToken', responseData.access_token);
-                 localStorage.setItem('currentUser', JSON.stringify(responseData.user));
-                 authToken = responseData.access_token; currentUser = responseData.user;
+            try {
+                const res = await fetch(`${API_URL}/auth/signup`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                
+                const responseData = await res.json();
+                if(!res.ok) throw new Error(responseData.detail || 'Signup failed');
+                
+                // Auto-login
+                if(responseData.access_token) {
+                     localStorage.setItem('authToken', responseData.access_token);
+                     localStorage.setItem('currentUser', JSON.stringify(responseData.user));
+                     
+                     syncGlobals();
+                     closeAuthModal();
+                     alert('Account created successfully!');
+                     
+                     if(responseData.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
+                     else if(responseData.user.role === 'delivery') window.location.href = 'delivery.html';
+                     else window.location.reload();
+                }
+            } catch(err) { 
+                alert("Error: " + err.message); 
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+    }
 
-                 syncGlobals(); // <-- keep window.MediFind updated
-                 updateAuthUI();
-                 closeAuthModal();
-                 alert('Account created! Redirecting...');
-                 
-                 // Redirect based on role
-                 if(responseData.user.role === 'pharmacy') window.location.href = 'pharmacy.html';
-                 else if(responseData.user.role === 'delivery') window.location.href = 'delivery.html';
-                 else window.location.href = 'index.html';
-             }
-
-        } catch(err) { alert(err.message); }
-    });
-}
 
 function logout() {
     // Clear all stored user data from localStorage (keep cart intact)
@@ -380,7 +391,6 @@ async function loadHomeSections() {
 
 // Attach global functions for inline HTML onclicks
 window.handleSearch = handleSearch;
-window.logout = logout;
 window.openAuthModal = openAuthModal;
 window.closeAuthModal = closeAuthModal;
 window.showLogin = showLogin;
