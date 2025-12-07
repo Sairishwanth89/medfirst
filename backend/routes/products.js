@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Product = require('../models/Product');
-// Import the client safely
+const Notification = require('../models/Notification'); 
+// Import ES Client safely
 const esConfig = require('../config/elasticsearch');
-const Notification = require('../models/Notification');
 const esClient = esConfig.esClient;
 const PRODUCT_INDEX = process.env.ELASTICSEARCH_PRODUCTS_INDEX || 'products';
 
-// Search products
+// Search products (Merged Route)
 router.get('/search', async (req, res) => {
   try {
     const { q } = req.query;
-    console.log(`[Search] Request for: "${q}"`); // Debug log
+    // console.log(`[Search] Request for: "${q}"`); 
 
     if (!q || q.trim() === '') {
       return res.status(400).json({ success: false, error: 'Query required' });
@@ -21,7 +21,7 @@ router.get('/search', async (req, res) => {
     let results = [];
     let fromElastic = false;
 
-    // 1. Try Elasticsearch
+    // --- 1. Try Elasticsearch ---
     try {
         if (!esClient) throw new Error('Elasticsearch client is undefined');
 
@@ -31,45 +31,31 @@ router.get('/search', async (req, res) => {
                 query: {
                     multi_match: {
                         query: searchQuery,
-                        // Search in Name, Composition, Uses, and Manufacturer
-                        fields: [
-                            'name^4', 
-                            'composition^3', 
-                            'uses^2', 
-                            'manufacturer', 
-                            'side_effects'
-                        ],
+                        fields: ['name^4', 'composition^3', 'uses^2', 'manufacturer', 'side_effects'],
                         fuzziness: 'AUTO'
                     }
                 }
             }
         });
 
-        // Debug log to see structure in docker logs
-        // console.log('[Search] ES Response keys:', Object.keys(response));
-
-        // Safe access to hits (handles v7 and v8 client differences)
         const hitsObj = response.hits || response.body?.hits;
         const hits = hitsObj?.hits || [];
 
         if (hits.length > 0) {
-            console.log(`[Search] ES found ${hits.length} hits`);
+            // console.log(`[Search] ES found ${hits.length} hits`);
             fromElastic = true;
             const ids = hits.map(h => h._id);
-            
-            // Fetch from Mongo
             const docs = await Product.find({ _id: { $in: ids } });
             
-            // Map back to preserve ES order
+            // Maintain ES sort order
             const docsMap = new Map(docs.map(d => [d._id.toString(), d]));
             results = ids.map(id => docsMap.get(id)).filter(Boolean);
         }
     } catch (esErr) {
         console.error('[Search] ES failed, using fallback:', esErr.message);
-        // Do not crash, just fall through to Mongo
     }
 
-    // 2. Fallback to MongoDB
+    // --- 2. Fallback to MongoDB ---
     if (results.length === 0) {
         console.log('[Search] Using MongoDB fallback');
         results = await Product.find({
@@ -80,6 +66,36 @@ router.get('/search', async (req, res) => {
             ]
         }).limit(50);
     }
+
+    // --- 3. Demand Sensing Logic (Notifications) ---
+    // Run asynchronously so we don't slow down the user's search result
+    results.forEach(async (product) => {
+        if (product.stock_quantity === 0) {
+            try {
+                // Check if alert already exists (unread)
+                const existingAlert = await Notification.findOne({
+                    pharmacy_id: product.pharmacy_id,
+                    product_id: product._id,
+                    status: 'unread'
+                });
+
+                if (existingAlert) {
+                    existingAlert.count += 1;
+                    await existingAlert.save();
+                } else {
+                    await Notification.create({
+                        pharmacy_id: product.pharmacy_id,
+                        product_id: product._id,
+                        product_name: product.name,
+                        type: 'out_of_stock'
+                    });
+                    console.log(`⚠️ Stock Alert: ${product.name}`);
+                }
+            } catch (err) {
+                console.error("Notification Error:", err.message);
+            }
+        }
+    });
 
     res.json({
       success: true,
@@ -94,74 +110,14 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// Get all products (Standard route)
+// Get all products
 router.get('/', async (req, res) => {
   try {
-    // Check if a limit was requested (e.g. ?limit=8), otherwise default to 50
     const limit = parseInt(req.query.limit) || 50;
-    
-    // Fetch random products if possible, or just the first N products
-    // Using .limit() gives us a sample
     const products = await Product.find().limit(limit);
-    
-    res.json({
-      success: true,
-      count: products.length,
-      results: products
-    });
+    res.json({ success: true, count: products.length, results: products });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-router.get('/search', async (req, res) => {
-  try {
-    const { q } = req.query;
-    if (!q) return res.status(400).json({ error: 'Query required' });
-
-    // ... (Keep your existing Elasticsearch/Mongo search logic here) ...
-    // ... Assume 'results' is the array of products found ...
-    
-    // [EXISTING CODE: Perform Search...] 
-    // For this example, I'll simulate the Mongo fallback results:
-    const results = await Product.find({ 
-        name: { $regex: q, $options: 'i' } 
-    }).limit(50);
-
-    // ➤ NEW LOGIC: Check for Out-of-Stock items in search results
-    results.forEach(async (product) => {
-        if (product.stock_quantity === 0) {
-            // Check if alert already exists today
-            const existingAlert = await Notification.findOne({
-                pharmacy_id: product.pharmacy_id,
-                product_id: product._id,
-                status: 'unread'
-            });
-
-            if (existingAlert) {
-                // Just increment the counter (e.g. "5 people looked for this")
-                existingAlert.count += 1;
-                await existingAlert.save();
-            } else {
-                // Create new Real-Time Alert
-                await Notification.create({
-                    pharmacy_id: product.pharmacy_id,
-                    product_id: product._id,
-                    product_name: product.name,
-                    type: 'out_of_stock'
-                });
-                console.log(`⚠️ Alert sent to Pharmacy for: ${product.name}`);
-            }
-        }
-    });
-
-    res.json({ results });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Search failed' });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
