@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offers | MediFind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .offers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .offer-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .offer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .offer-img {
+            height: 150px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+        }
+
+        .offer-body {
+            padding: 20px;
+        }
+
+        .coupon-code {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 10px;
+            border: 1px dashed #3b82f6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="pe-header">
+        <div class="container header-content">
+            <div class="logo-section">
+                <a href="index.html" style="text-decoration:none; color:inherit;">
+                    <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-item">Home</a>
+                <a href="cart.html" class="nav-item">Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 40px; padding-bottom: 60px;">
+        <h1 style="margin-bottom: 10px;">Exclusive Offers</h1>
+        <p style="color: #6b7280; margin-bottom: 40px;">Save more on your healthcare needs anytime, anywhere.</p>
+
+        <div class="offers-grid">
+            <!-- Offer 1 -->
+            <div class="offer-card">
+                <div class="offer-img" style="background: #e0f2fe;">
+                    <i class="fas fa-percentage fa-3x" style="color: #0284c7;"></i>
+                </div>
+                <div class="offer-body">
+                    <h3>Flat 20% OFF</h3>
+                    <p style="color:#6b7280; font-size:0.95rem; margin-top:5px;">On your first medicine order above
+                        ₹500.</p>
+                    <div class="coupon-code">MEDIFIRST</div>
+                </div>
+            </div>
+
+            <!-- Offer 2 -->
+            <div class="offer-card">
+                <div class="offer-img" style="background: #fef3c7;">
+                    <i class="fas fa-truck fa-3x" style="color: #d97706;"></i>
+                </div>
+                <div class="offer-body">
+                    <h3>Free Delivery</h3>
+                    <p style="color:#6b7280; font-size:0.95rem; margin-top:5px;">Get free express delivery on all orders
+                        this weekend.</p>
+                    <div class="coupon-code">FREEDEL</div>
+                </div>
+            </div>
+
+            <!-- Offer 3 -->
+            <div class="offer-card">
+                <div class="offer-img" style="background: #dcfce7;">
+                    <i class="fas fa-user-plus fa-3x" style="color: #16a34a;"></i>
+                </div>
+                <div class="offer-body">
+                    <h3>Refer & Earn</h3>
+                    <p style="color:#6b7280; font-size:0.95rem; margin-top:5px;">Refer a friend and get ₹100 in your
+                        wallet.</p>
+                    <div class="coupon-code">FRIEND100</div>
+                </div>
+            </div>
+
+            <!-- Offer 4 -->
+            <div class="offer-card">
+                <div class="offer-img" style="background: #fae8ff;">
+                    <i class="fas fa-tint fa-3x" style="color: #d946ef;"></i>
+                </div>
+                <div class="offer-body">
+                    <h3>Diabetes Care Pack</h3>
+                    <p style="color:#6b7280; font-size:0.95rem; margin-top:5px;">Extra 15% off on insulin and test
+                        strips.</p>
+                    <div class="coupon-code">SUGARFREE</div>
+                </div>
+            </div>
+
+            <!-- Offer 5 -->
+            <div class="offer-card">
+                <div class="offer-img" style="background: #ffe4e6;">
+                    <i class="fas fa-baby fa-3x" style="color: #e11d48;"></i>
+                </div>
+                <div class="offer-body">
+                    <h3>Mom & Baby Care</h3>
+                    <p style="color:#6b7280; font-size:0.95rem; margin-top:5px;">Discounts on diapers, supplements &
+                        more.</p>
+                    <div class="coupon-code">BABYLOVE</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="background: #1f2937; color: #fff; padding: 40px 0; margin-top: 60px;">
+        <div class="container" style="text-align: center;">
+            <p>&copy; 2024 MediFind. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

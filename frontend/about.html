@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | MediFind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #06b6d4, #3b82f6);
+            color: #fff;
+            padding: 60px 20px;
+            text-align: center;
+            border-radius: 0 0 50% 50% / 20px;
+        }
+
+        .about-section {
+            padding: 60px 0;
+        }
+
+        .problem-solution {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .card-box {
+            background: #f9fafb;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #06b6d4;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="pe-header">
+        <div class="container header-content">
+            <div class="logo-section">
+                <a href="index.html" style="text-decoration:none; color:inherit;">
+                    <div class="logo"><i class="fas fa-heartbeat"></i> MediFind</div>
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="nav-item">Home</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="about-hero">
+        <div class="container">
+            <h1 style="font-size: 3rem; margin-bottom: 20px;">Bridging the Gap in Healthcare</h1>
+            <p style="font-size: 1.2rem; opacity: 0.9; max-width: 700px; margin: 0 auto;">
+                We are on a mission to make essential medicines accessible to everyone, everywhere, instantly.
+            </p>
+        </div>
+    </div>
+
+    <main class="container">
+
+        <!-- The Problem vs The Solution -->
+        <section class="about-section">
+            <h2 style="text-align: center; font-size: 2rem; margin-bottom: 10px;">Why We Built MediFind</h2>
+            <p style="text-align: center; color: #6b7280;">Healthcare delivery is broken. We fixed it.</p>
+
+            <div class="problem-solution">
+                <div class="card-box" style="border-left: 5px solid #ef4444;">
+                    <h3 style="color: #ef4444; margin-bottom: 20px;"><i class="fas fa-exclamation-circle"></i> The
+                        Problem</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-times" style="color: #ef4444; margin-top: 4px;"></i>
+                            <div><strong>The Pharmacy Run-around:</strong> Patients visit 3-4 shops to find one
+                                prescription, wasting critical time during emergencies.</div>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-times" style="color: #ef4444; margin-top: 4px;"></i>
+                            <div><strong>Opaque Inventory:</strong> No way to know if a medicine is in stock without
+                                physically visiting the store.</div>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-times" style="color: #ef4444; margin-top: 4px;"></i>
+                            <div><strong>Counterfeit Risks:</strong> Unverified local sellers often lack quality control
+                                assurances.</div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="card-box" style="border-left: 5px solid #10b981;">
+                    <h3 style="color: #10b981; margin-bottom: 20px;"><i class="fas fa-check-circle"></i> Our Solution
+                    </h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                            <div><strong>Hyperlocal Aggregation:</strong> We connect you to the nearest 50+ pharmacies
+                                instantly.</div>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                            <div><strong>Real-Time Inventory:</strong> Our StockSync™ tech updates availability every 60
+                                seconds.</div>
+                        </li>
+                        <li style="margin-bottom: 15px; display: flex; gap: 10px;">
+                            <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                            <div><strong>Verified Partners:</strong> Every pharmacy on our platform is vetted and
+                                licensed.</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fake Data / Impact -->
+        <section class="about-section" style="border-top: 1px solid #e5e7eb;">
+            <h2 style="text-align: center; font-size: 2rem;">Our Impact by the Numbers</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">10k+</div>
+                    <div>Orders Delivered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">500+</div>
+                    <div>Partner Pharmacies</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">15 min</div>
+                    <div>Avg. Delivery Time</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">99.9%</div>
+                    <div>Availability Rate</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fake Timeline -->
+        <section class="about-section">
+            <h2 style="text-align: center; margin-bottom: 40px;">Our Journey</h2>
+            <div
+                style="max-width: 600px; margin: 0 auto; border-left: 2px solid #e5e7eb; padding-left: 30px; position: relative;">
+                <div style="margin-bottom: 40px; position: relative;">
+                    <span
+                        style="position: absolute; left: -39px; top: 0; background: #06b6d4; width: 16px; height: 16px; border-radius: 50%;"></span>
+                    <h4 style="margin: 0; color: #06b6d4;">2024</h4>
+                    <p>Launched "MediFind Gold" for chronic patients.</p>
+                </div>
+                <div style="margin-bottom: 40px; position: relative;">
+                    <span
+                        style="position: absolute; left: -39px; top: 0; background: #ccc; width: 16px; height: 16px; border-radius: 50%;"></span>
+                    <h4 style="margin: 0;">2023</h4>
+                    <p>Expanded to Mumbai & Pune. 1000 daily orders milestone.</p>
+                </div>
+                <div style="margin-bottom: 40px; position: relative;">
+                    <span
+                        style="position: absolute; left: -39px; top: 0; background: #ccc; width: 16px; height: 16px; border-radius: 50%;"></span>
+                    <h4 style="margin: 0;">2022</h4>
+                    <p>Founded by a group of pharmacists and techies in a garage.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer style="background: #1f2937; color: #fff; padding: 40px 0; margin-top: 60px;">
+        <div class="container" style="text-align: center;">
+            <p>&copy; 2024 MediFind. Making Healthcare Accessible.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

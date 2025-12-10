@@ -24,19 +24,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function init() {
         // Set User Name
         const nameEl = document.getElementById('pharmacy-name');
-        if(nameEl && currentUser) nameEl.textContent = currentUser.username || "Pharmacy Manager";
+        if (nameEl && currentUser) nameEl.textContent = currentUser.username || "Pharmacy Manager";
 
         // Load Settings Data (if available)
-        if(currentUser) {
-            if(document.getElementById('setting-name')) document.getElementById('setting-name').value = currentUser.username || '';
-            if(document.getElementById('setting-email')) document.getElementById('setting-email').value = currentUser.email || '';
-            if(document.getElementById('setting-phone')) document.getElementById('setting-phone').value = currentUser.phone || '';
-            if(document.getElementById('setting-address')) document.getElementById('setting-address').value = currentUser.address || '';
+        if (currentUser) {
+            if (document.getElementById('setting-name')) document.getElementById('setting-name').value = currentUser.username || '';
+            if (document.getElementById('setting-email')) document.getElementById('setting-email').value = currentUser.email || '';
+            if (document.getElementById('setting-phone')) document.getElementById('setting-phone').value = currentUser.phone || '';
+            if (document.getElementById('setting-address')) document.getElementById('setting-address').value = currentUser.address || '';
         }
 
         // Initial Data Load
         refreshData();
-        
+
         // Polling (Only if connected to real backend)
         if (location.protocol !== 'file:') {
             setInterval(refreshData, 5000);
@@ -52,9 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const inventoryVisible = isVisible('inventory-tab');
         const ordersVisible = isVisible('orders-tab');
 
-        if(ordersVisible || dashboardVisible) loadOrders();
-        if(inventoryVisible || dashboardVisible) loadInventory();
-        
+        if (ordersVisible || dashboardVisible) loadOrders();
+        if (inventoryVisible || dashboardVisible) loadInventory();
+
         // Alerts (skip if no backend)
         if (location.protocol !== 'file:') checkNotifications();
     }
@@ -73,11 +73,25 @@ document.addEventListener('DOMContentLoaded', () => {
             let items = [];
             // Try fetching from Backend
             try {
-                const res = await fetch(`${API_URL}/stock/me`, {
+                // Determine which endpoint to use (User specific or Low Stock or Search)
+                // For full inventory we might need a specific endpoint, or just search with empty query
+                // Assuming we use /search with caching or a new endpoint. 
+                // For now, let's use the low-stock endpoint primarily for the dashboard, 
+                // but we need FULL inventory for the specific tab.
+                // Let's assume we use the basic product search endpoint for now with a high limit.
+
+                // Correction: The backend I modified added /pharmacy/low-stock. 
+                // I should probably use /products root endpoint which returns all products (limit 50).
+                // Or implementing a /pharmacy/inventory endpoint would be better.
+                // Given the constraints, let's use the general /products endpoint for now.
+                const res = await fetch(`${API_URL}/products?limit=100`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
                 });
+
+
                 if (res.ok) {
-                    items = await res.json();
+                    const data = await res.json();
+                    items = data.results || [];
                 } else {
                     throw new Error("API Failed");
                 }
@@ -91,13 +105,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             allInventory = items; // Save for filtering
-            
+
             // Apply current filters & Render
             filterAndRenderInventory();
 
             // Update Stats (Low Stock)
-            const lowStock = items.filter(i => (i.stock_quantity || 0) < 10).length;
-            if(document.getElementById('stat-low')) document.getElementById('stat-low').textContent = lowStock;
+            // Use 'stock' property if available, fallback to 'stock_quantity' for legacy/fake data compatibility
+            const lowStock = items.filter(i => ((i.stock !== undefined ? i.stock : i.stock_quantity) || 0) < 10).length;
+            if (document.getElementById('stat-low')) document.getElementById('stat-low').textContent = lowStock;
 
         } catch (error) {
             console.error("Inventory Error:", error);
@@ -106,14 +121,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function generateFakeInventory() {
         return [
-            { _id: 'demo1', name: 'Paracetamol 650mg', manufacturer: 'Micro Labs', unit_price: 30.50, stock_quantity: 150, category: 'over_the_counter' },
-            { _id: 'demo2', name: 'Amoxicillin 500mg', manufacturer: 'Sun Pharma', unit_price: 120.00, stock_quantity: 5, category: 'prescription' },
-            { _id: 'demo3', name: 'Cetirizine 10mg', manufacturer: 'Cipla', unit_price: 55.00, stock_quantity: 80, category: 'over_the_counter' },
-            { _id: 'demo4', name: 'Vitamin D3 60k', manufacturer: 'Lupin', unit_price: 240.00, stock_quantity: 0, category: 'supplement' },
-            { _id: 'demo5', name: 'Azithromycin 500mg', manufacturer: 'Dr. Reddy', unit_price: 110.00, stock_quantity: 12, category: 'prescription' },
-            { _id: 'demo6', name: 'Pantoprazole 40mg', manufacturer: 'Alkem', unit_price: 90.00, stock_quantity: 45, category: 'prescription' },
-            { _id: 'demo7', name: 'Metformin 500mg', manufacturer: 'USV Ltd', unit_price: 45.00, stock_quantity: 200, category: 'prescription' },
-            { _id: 'demo8', name: 'Ibuprofen 400mg', manufacturer: 'Abbott', unit_price: 25.00, stock_quantity: 8, category: 'over_the_counter' }
+            { _id: 'demo1', name: 'Paracetamol 650mg', manufacturer: 'Micro Labs', unit_price: 30.50, stock: 150, category: 'over_the_counter' },
+            { _id: 'demo2', name: 'Amoxicillin 500mg', manufacturer: 'Sun Pharma', unit_price: 120.00, stock: 5, category: 'prescription' },
+            { _id: 'demo3', name: 'Cetirizine 10mg', manufacturer: 'Cipla', unit_price: 55.00, stock: 80, category: 'over_the_counter' },
+            { _id: 'demo4', name: 'Vitamin D3 60k', manufacturer: 'Lupin', unit_price: 240.00, stock: 0, category: 'supplement' },
+            { _id: 'demo5', name: 'Azithromycin 500mg', manufacturer: 'Dr. Reddy', unit_price: 110.00, stock: 12, category: 'prescription' },
+            { _id: 'demo6', name: 'Pantoprazole 40mg', manufacturer: 'Alkem', unit_price: 90.00, stock: 45, category: 'prescription' },
+            { _id: 'demo7', name: 'Metformin 500mg', manufacturer: 'USV Ltd', unit_price: 45.00, stock: 200, category: 'prescription' },
+            { _id: 'demo8', name: 'Ibuprofen 400mg', manufacturer: 'Abbott', unit_price: 25.00, stock: 8, category: 'over_the_counter' }
         ];
     }
 
@@ -121,33 +136,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchInput = document.getElementById('inventory-search');
         const sortSelect = document.getElementById('inventory-sort');
 
-        if(searchInput) searchInput.addEventListener('input', () => filterAndRenderInventory());
-        if(sortSelect) sortSelect.addEventListener('change', () => filterAndRenderInventory());
+        if (searchInput) searchInput.addEventListener('input', () => filterAndRenderInventory());
+        if (sortSelect) sortSelect.addEventListener('change', () => filterAndRenderInventory());
     }
 
     function filterAndRenderInventory() {
         const searchInput = document.getElementById('inventory-search');
         const sortSelect = document.getElementById('inventory-sort');
-        
+
         const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
         const sortType = sortSelect ? sortSelect.value : 'name_asc';
 
         // 1. Filter
         let filtered = allInventory.filter(item => {
-            return (item.name || '').toLowerCase().includes(searchTerm) || 
-                   (item.manufacturer || '').toLowerCase().includes(searchTerm);
+            return (item.name || '').toLowerCase().includes(searchTerm) ||
+                (item.manufacturer || '').toLowerCase().includes(searchTerm);
         });
 
         // 2. Sort
         filtered.sort((a, b) => {
-            const stockA = a.stock_quantity !== undefined ? a.stock_quantity : 0;
-            const stockB = b.stock_quantity !== undefined ? b.stock_quantity : 0;
+            const stockA = a.stock !== undefined ? a.stock : (a.stock_quantity !== undefined ? a.stock_quantity : 0);
+            const stockB = b.stock !== undefined ? b.stock : (b.stock_quantity !== undefined ? b.stock_quantity : 0);
             const priceA = a.unit_price || 0;
             const priceB = b.unit_price || 0;
             const nameA = (a.name || '').toLowerCase();
             const nameB = (b.name || '').toLowerCase();
 
-            switch(sortType) {
+            switch (sortType) {
                 case 'name_asc': return nameA.localeCompare(nameB);
                 case 'stock_low': return stockA - stockB;
                 case 'stock_high': return stockB - stockA;
@@ -171,8 +186,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         tbody.innerHTML = items.map(item => {
-            const stock = item.stock_quantity !== undefined ? item.stock_quantity : 0;
-            
+            const stock = item.stock !== undefined ? item.stock : (item.stock_quantity !== undefined ? item.stock_quantity : 0);
+
             let stockClass = 'in-stock';
             let stockIcon = '';
             if (stock === 0) { stockClass = 'low-stock'; stockIcon = '<i class="fas fa-times-circle"></i>'; }
@@ -182,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr>
                     <td><strong>${item.name}</strong></td>
                     <td>${item.manufacturer || 'Generic'}</td>
-                    <td>₹${(item.unit_price || 0).toFixed(2)}</td>
+                    <td>₹${(item.unit_price || item.price || 0).toFixed(2)}</td>
                     <td>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <input type="number" value="${stock}" 
@@ -210,11 +225,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadOrders() {
         const tbody = document.getElementById('orders-table-body');
-        if(!tbody) return;
+        if (!tbody) return;
 
         try {
             let orders = [];
-            // Try fetching from Backend
+            let simulatedOrders = [];
+
+            // 1. Load Simulated Orders (Frontend Demo)
+            try {
+                simulatedOrders = JSON.parse(localStorage.getItem('simulated_orders') || '[]');
+            } catch (e) {
+                console.warn("Failed to load simulated orders");
+            }
+
+            // 2. Load Real Orders (Backend)
             try {
                 const res = await fetch(`${API_URL}/orders/pharmacy/me`, {
                     headers: { 'Authorization': `Bearer ${authToken}` }
@@ -222,27 +246,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (res.ok) {
                     orders = await res.json();
                 } else {
-                    throw new Error("API Failed");
+                    // Start fresh if API fails, relying on fake fallback later if needed
+                    console.warn("API Fetch failed, using empty list + fallback");
                 }
             } catch (e) {
                 console.warn("Orders Fetch Failed (using demo data):", e);
             }
 
-            // ➤ FALLBACK: If API failed OR returned 0 orders, use Fake Orders
-            if (!orders || orders.length === 0) {
+            // 3. Merge: Simulated + Real
+            // Note: Simulated orders are just prepended for visibility
+            orders = [...simulatedOrders, ...orders];
+
+            // ➤ FALLBACK: If NO orders at all (neither real nor simulated), use Default Fake Orders
+            if (orders.length === 0) {
                 orders = generateFakeOrders();
+                // Also save these fakes to localStorage so they persist across reloads properly
+                // localStorage.setItem('simulated_orders', JSON.stringify(orders)); // Optional: maybe too aggressive
             }
 
             allOrders = orders;
 
             // Update Stats
             const pending = orders.filter(o => o.status === 'pending').length;
-            if(document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = pending;
-            
+            if (document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = pending;
+
             const revenue = orders
                 .filter(o => o.status !== 'cancelled')
                 .reduce((sum, o) => sum + (o.total_amount || 0), 0);
-            if(document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = `₹${revenue.toFixed(0)}`;
+            if (document.getElementById('stat-revenue')) document.getElementById('stat-revenue').textContent = `₹${revenue.toFixed(0)}`;
 
             renderOrdersTable(orders);
 
@@ -263,7 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function renderOrdersTable(orders) {
         const tbody = document.getElementById('orders-table-body');
-        
+
         tbody.innerHTML = orders.map(order => {
             const items = order.items || [];
             const itemNames = items.map(i => `${i.medicine_id?.name || 'Medicine'} (x${i.quantity})`).join(', ');
@@ -291,17 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // NOTIFICATIONS & ACTIONS
     // ==========================================
-    
+
     async function checkNotifications() {
         try {
             const res = await fetch(`${API_URL}/notifications/me`, {
                 headers: { 'Authorization': `Bearer ${authToken}` }
             });
-            if (!res.ok) return; 
+            if (!res.ok) return;
             const alerts = await res.json();
-            
+
             const alertContainer = document.getElementById('alert-section');
-            if(alertContainer) {
+            if (alertContainer) {
                 if (alerts.length > 0) {
                     alertContainer.style.display = 'block';
                     alertContainer.innerHTML = `
@@ -342,44 +373,67 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ACTIONS (Global Scope)
     window.updateStock = async (id, newQty) => {
-        if(id.startsWith('demo')) return; // Don't update fake data
+        if (id.startsWith('demo')) return; // Don't update fake data
         try {
-            await fetch(`${API_URL}/stock/${id}`, {
-                method: 'PATCH',
+            await fetch(`${API_URL}/products/${id}/stock`, {
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
-                body: JSON.stringify({ stock_quantity: parseInt(newQty) })
+                body: JSON.stringify({ stock: parseInt(newQty) })
             });
-        } catch(e) { alert('Failed to update stock'); }
+            // alert("Stock updated!"); // Optional 
+        } catch (e) { alert('Failed to update stock'); }
     };
 
     window.updateOrderStatus = async (id, status) => {
-        if(id.startsWith('ORD')) {
-             alert(`Demo Order ${status} successfully!`);
-             // Simulate update locally
-             allOrders = allOrders.map(o => o._id === id ? {...o, status: status} : o);
-             renderOrdersTable(allOrders);
-             return;
+        if (id.startsWith('ORD')) {
+            alert(`Demo Order ${status} successfully!`);
+            // Simulate update locally
+            allOrders = allOrders.map(o => o._id === id ? { ...o, status: status } : o);
+            renderOrdersTable(allOrders);
+
+            // ➤ PERSIST SIMULATION to LocalStorage
+            try {
+                let simulated = JSON.parse(localStorage.getItem('simulated_orders') || '[]');
+                simulated = simulated.map(o => o._id === id ? { ...o, status: status } : o);
+                localStorage.setItem('simulated_orders', JSON.stringify(simulated));
+
+                // ➤ AUTOMATION: If status is 'confirmed', simulate Warehouse Packaging -> 'ready_for_pickup'
+                if (status === 'confirmed') {
+                    console.log("⏳ Simulating Warehouse Packaging (5s)...");
+                    setTimeout(() => {
+                        let currentSimulated = JSON.parse(localStorage.getItem('simulated_orders') || '[]');
+                        currentSimulated = currentSimulated.map(o => o._id === id ? { ...o, status: 'ready_for_pickup' } : o);
+                        localStorage.setItem('simulated_orders', JSON.stringify(currentSimulated));
+                        console.log(`📦 Order ${id} is now Ready for Pickup (Delivery Partner can see it)`);
+
+                        // Optional: Refresh if we are still on this page
+                        if (typeof loadOrders === 'function') loadOrders();
+                    }, 500); // 0.5s Delay for impatient user
+                }
+
+            } catch (e) { console.error("Failed to update simulated storage", e); }
+            return;
         }
 
-        if(!confirm(`Mark order as ${status}?`)) return;
+        if (!confirm(`Mark order as ${status}?`)) return;
         try {
             await fetch(`${API_URL}/orders/${id}/${status === 'confirmed' ? 'confirm' : 'cancel'}`, {
                 method: 'PATCH', headers: { 'Authorization': `Bearer ${authToken}` }
             });
             loadOrders(); // Refresh
-        } catch(e) { alert("Failed to update status"); }
+        } catch (e) { alert("Failed to update status"); }
     };
 
     window.deleteMedicine = async (id) => {
-        if(!confirm('Delete this medicine?')) return;
-        
-        if(id.startsWith('demo')) {
+        if (!confirm('Delete this medicine?')) return;
+
+        if (id.startsWith('demo')) {
             allInventory = allInventory.filter(i => i._id !== id);
             filterAndRenderInventory();
             return;
         }
 
-        await fetch(`${API_URL}/stock/${id}`, { method: 'DELETE', headers: {'Authorization': `Bearer ${authToken}`} });
+        await fetch(`${API_URL}/stock/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${authToken}` } });
         loadInventory();
     };
 
@@ -394,13 +448,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.dismissAlert = async (id) => {
         await fetch(`${API_URL}/notifications/${id}/read`, {
-             method: 'PATCH', headers: { 'Authorization': `Bearer ${authToken}` }
+            method: 'PATCH', headers: { 'Authorization': `Bearer ${authToken}` }
         });
         checkNotifications();
     };
 
     // Navigation & Modal
-    window.showTab = function(tabName, btn) {
+    window.showTab = function (tabName, btn) {
         ['dashboard-tab', 'orders-tab', 'inventory-tab', 'settings-tab'].forEach(id => {
             document.getElementById(id).style.display = 'none';
         });
@@ -424,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
             manufacturer: document.getElementById('med-manufacturer').value,
             category: document.getElementById('med-category').value,
             unit_price: parseFloat(document.getElementById('med-price').value),
-            stock_quantity: parseInt(document.getElementById('med-qty').value)
+            stock: parseInt(document.getElementById('med-qty').value)
         };
         try {
             const res = await fetch(`${API_URL}/stock`, {
@@ -441,7 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (e) { console.error(e); }
     });
     const profileForm = document.getElementById('profile-form');
-    if(profileForm) {
+    if (profileForm) {
         profileForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const data = {
@@ -459,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify(data)
                 });
 
-                if(res.ok) {
+                if (res.ok) {
                     alert('Profile updated successfully!');
                     // Update local storage
                     currentUser.phone = data.phone;

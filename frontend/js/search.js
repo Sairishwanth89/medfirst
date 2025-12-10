@@ -20,13 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (query.length > 1) {
                 performSearch(query);
             } else {
-                if(resultsContainer) {
+                if (resultsContainer) {
                     resultsContainer.style.display = 'none';
                     resultsContainer.innerHTML = '';
                 }
             }
         });
-        
+
         // Hide when clicking outside
         document.addEventListener('click', (e) => {
             if (resultsContainer && !searchInput.contains(e.target) && !resultsContainer.contains(e.target)) {
@@ -37,23 +37,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function performSearch(query) {
         try {
-            // A. Try Backend Search (Uncomment if backend is ready)
-            /*
+            // A. Try Backend Search (Now Enabled)
             const res = await fetch(`${API_URL}/products/search?q=${query}`);
             if (res.ok) {
                 const data = await res.json();
                 displayResults(data.results || []);
                 return;
             }
-            */
 
-            // B. Fallback to Local CSV Data
+            // B. Fallback (If backend fails)
+            console.warn("Backend search failed, using local");
             const localData = getLocalMedicines();
-            const filtered = localData.filter(item => 
-                item.name.toLowerCase().includes(query.toLowerCase()) || 
+            const filtered = localData.filter(item =>
+                item.name.toLowerCase().includes(query.toLowerCase()) ||
                 item.uses.toLowerCase().includes(query.toLowerCase())
             );
-            
+
             displayResults(filtered);
 
         } catch (err) {
@@ -71,9 +70,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resultsContainer.innerHTML = products.slice(0, 6).map(p => {
-            const productId = p.id || p._id; 
+            const productId = p.id || p._id;
             const safeName = p.name.replace(/'/g, "\\'"); // Escape quotes for JS
-            
+
             return `
             <div class="search-item" 
                  onclick="window.location.href='product.html?id=${productId}'" 
@@ -100,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             `;
         }).join('');
-        
+
         resultsContainer.style.display = 'block';
     }
 

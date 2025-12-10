@@ -5,9 +5,13 @@ const cors = require('cors');
 
 const app = express();
 
-// Connect Database
-connectDB().then(() => {
+const { connectRabbitMQ, startConsumer } = require('./utils/rabbitmq');
+
+// Connect Database & RabbitMQ
+connectDB().then(async () => {
   console.log('✓ Database connected successfully');
+  await connectRabbitMQ();
+  startConsumer();
 }).catch(err => {
   console.error('✗ Database connection failed:', err);
   process.exit(1);

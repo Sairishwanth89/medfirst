@@ -1,131 +1,127 @@
-(function () {
-  const API = window.MediFind?.API_URL || 'http://localhost:8000/api';
-  const PRODUCTS_ENDPOINT = `${API}/products`;
-  const SEARCH_ENDPOINT = `${API}/products/search`;
-
-  async function fetchProductById(id) {
-    const res = await fetch(`${PRODUCTS_ENDPOINT}/${id}`);
-    if (!res.ok) throw new Error(`Product not found`);
-    return res.json();
-  }
-
-  function renderProduct(p) {
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('product-content').style.display = 'block';
-
-    const setText = (id, val) => {
-        const el = document.getElementById(id);
-        if(el) el.textContent = val || '';
-    };
-
-    // Basic Info
-    const title = p.name || p.display_name || 'Unknown';
-    setText('crumb-name', title);
-    setText('p-name', title);
-    setText('p-manufacturer', p.manufacturer || p.manufacturer_name || 'Generic');
-    setText('p-composition', p.composition || p.composition_short || 'Composition not available');
-    
-    // Image
-    let img = p.image_url || '';
-    if(img.includes('(')) img = img.match(/\((.*?)\)/)[1]; // Clean markdown
-    if(!img || img.includes('example.com')) img = 'https://img.freepik.com/free-vector/medical-healthcare-blue-color-cross-background_1017-26807.jpg';
-    document.getElementById('p-image').src = img;
-
-    // Price
-    const price = p.price || p.unit_price || (Math.random() * 45 + 5).toFixed(2);
-    setText('p-price', `₹${price}`);
-
-    // Detailed Info
-    setText('p-uses', p.uses || 'Consult doctor for uses.');
-    
-    // Render Side Effects as tags
-    const sideEffectsContainer = document.getElementById('p-side-effects');
-    if(p.side_effects) {
-        sideEffectsContainer.innerHTML = p.side_effects.split(' ')
-            .slice(0, 10) // Limit to 10 words/tags for UI
-            .map(se => `<span class="side-effect-tag">${se.replace(/,/g, '')}</span>`)
-            .join('');
-    } else {
-        sideEffectsContainer.textContent = 'No specific side effects listed.';
-    }
-
-    // Reviews
-    if(p.reviews) {
-        setText('rev-excellent', `${p.reviews.excellent}%`);
-        setText('rev-avg', `${p.reviews.average}%`);
-        setText('rev-poor', `${p.reviews.poor}%`);
-    }
-
-    // Add to Cart Logic
-    const addBtn = document.getElementById('add-btn');
-    addBtn.onclick = () => {
-        if(window.addToCart) {
-            window.addToCart(p.id || p._id, title, price, p.pharmacy_id);
-        } else {
-            alert('Cart system initializing...');
-        }
-    };
-
-    return { title, uses: p.uses };
-  }
-
-  async function loadSimilarProducts(currentId, queryTerm) {
-    const container = document.getElementById('similar-container');
-    container.innerHTML = '<div class="placeholder">Loading suggestions...</div>';
-    
-    try {
-        // Search by 'Uses' or Name to find similar items
-        const term = queryTerm ? queryTerm.split(' ')[0] : 'medicine';
-        const res = await fetch(`${SEARCH_ENDPOINT}?q=${term}`);
-        const data = await res.json();
-        
-        const similar = (data.results || [])
-            .filter(item => (item._id || item.id) !== currentId) // Exclude current
-            .slice(0, 4); // Take 4
-
-        if(!similar.length) {
-            container.innerHTML = '<p style="color:#999;">No similar products found.</p>';
-            return;
-        }
-
-        container.innerHTML = similar.map(item => {
-            const iTitle = item.name || item.display_name;
-            const iPrice = item.price || (Math.random()*50).toFixed(2);
-            let iImg = item.image_url || '';
-            if(!iImg || iImg.includes('example')) iImg = 'https://img.freepik.com/free-vector/medical-healthcare-blue-color-cross-background_1017-26807.jpg';
-
-            return `
-            <div class="medicine-card">
-                <a href="product.html?id=${item._id || item.id}" style="text-decoration:none; color:inherit;">
-                    <div style="height:120px; text-align:center; margin-bottom:10px;">
-                        <img src="${iImg}" style="height:100%; object-fit:contain;">
-                    </div>
-                    <h4 style="font-size:14px; margin-bottom:5px;">${iTitle}</h4>
-                    <div class="price" style="font-size:16px;">₹${iPrice}</div>
-                </a>
-            </div>
-            `;
-        }).join('');
-
-    } catch(e) { console.error(e); }
-  }
-
-  // Init
-  document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Get Product ID from URL
     const params = new URLSearchParams(window.location.search);
-    const id = params.get('id');
-    
-    if(!id) { window.location.href = 'index.html'; return; }
+    const productId = params.get('id');
+
+    if (!productId) {
+        alert("Product not found");
+        window.location.href = 'index.html';
+        return;
+    }
+
+    const loader = document.getElementById('loader');
+    const content = document.getElementById('product-content');
 
     try {
-        const product = await fetchProductById(id);
-        const { uses } = renderProduct(product.results || product); // Handle API wrapper
-        
-        // Load similar based on 'Uses' or 'Name'
-        loadSimilarProducts(id, uses || product.name);
-    } catch(e) {
-        console.error(e);
-        document.getElementById('loader').innerHTML = 'Product details could not be loaded.';
+        // 2. Fetch Product Details
+        // Try accessing via API first
+        console.log("Fetching product:", productId);
+        let product = null;
+
+        // MOCK DATA FALLBACK for Cart Recommendations (m1..m4, r1..r4)
+        const mockDb = {
+            'm1': { name: "Augmentin 625 Duo Tablet", manufacturer: "GlaxoSmithKline", unit_price: 223.42, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/wy2y9bdipmh6rgkrj0zm.jpg", uses: "Bacterial infections", composition: "Amoxycillin (500mg) + Clavulanic Acid (125mg)" },
+            'm2': { name: "Azithral 500 Tablet", manufacturer: "Alembic Pharma", unit_price: 132.40, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/kqkouvaqejbyk47dvjfu.jpg", uses: "Respiratory tract infection", composition: "Azithromycin (500mg)" },
+            'm3': { name: "Ascoril LS Syrup", manufacturer: "Glenmark Pharma", unit_price: 118.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/3205599cc49d4073ae66cbb0dbfded86.jpg", uses: "Cough with mucus", composition: "Ambroxol + Levosalbutamol + Guaifenesin" },
+            'm4': { name: "Aciloc 150 Tablet", manufacturer: "Cadila Pharma", unit_price: 45.34, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/pn7apngctvrtweencwi1.jpg", uses: "Acid reflux", composition: "Ranitidine (150mg)" },
+            'r1': { name: "Horlicks Health Drink", manufacturer: "GSK", unit_price: 450.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/f4e66d25-7833-488f-97a6-42f022a1562b.png", uses: "Nutrition", composition: "Malted Milk" },
+            'r2': { name: "Dettol Antiseptic Liquid", manufacturer: "Reckitt Benckiser", unit_price: 180.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/d4b31c93-68d7-463d-888e-6c03975001c4.jpg", uses: "First Add", composition: "Chloroxylenol" },
+            'r3': { name: "Ensure Diabetes Care", manufacturer: "Abbott", unit_price: 1100.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/b62153a7-33b8-479c-9c71-332d431c463f.jpg", uses: "Diabetes Nutrition", composition: "Protein + Complex Carbs" },
+            'r4': { name: "Shelcal 500 Tablet", manufacturer: "Torrent Pharma", unit_price: 110.00, image_url: "https://onemg.gumlet.io/l_watermark_346,w_480,h_480/a_ignore,w_480,h_480,c_fit,q_auto,f_auto/cropped/ba246679-0524-4f9e-9904-486162383d47.jpg", uses: "Calcium deficiency", composition: "Calcium + Vit D3" }
+        };
+
+        if (mockDb[productId]) {
+            console.log("Using Mock Data for", productId);
+            product = { _id: productId, ...mockDb[productId] };
+        } else {
+            const res = await fetch(`${window.MediFind.API_URL}/products/${productId}`);
+            if (res.ok) {
+                const data = await res.json();
+                product = data.results || data;
+            } else {
+                console.warn("API fetch failed");
+            }
+        }
+
+        if (!product) throw new Error("Product data unavailable");
+
+        // 3. Render Details
+        document.getElementById('p-name').textContent = product.name;
+        document.getElementById('crumb-name').textContent = product.name;
+        document.getElementById('p-manufacturer').textContent = product.manufacturer || 'Generic';
+
+        // Handle Price (Product schema has 'price' or 'unit_price')
+        const price = product.unit_price || product.price || 0;
+        document.getElementById('p-price').textContent = `₹${price.toFixed(2)}`;
+
+        document.getElementById('p-composition').textContent = product.composition || 'N/A';
+        document.getElementById('p-uses').textContent = product.uses || 'No description available.';
+        document.getElementById('p-side-effects').textContent = product.side_effects || 'None listed.';
+
+        // Reviews
+        if (product.reviews) {
+            document.getElementById('rev-excellent').textContent = `${product.reviews.excellent || 0}%`;
+            document.getElementById('rev-avg').textContent = `${product.reviews.average || 0}%`;
+            document.getElementById('rev-poor').textContent = `${product.reviews.poor || 0}%`;
+        }
+
+        // Image
+        const img = document.getElementById('p-image');
+        img.src = product.image_url || 'https://via.placeholder.com/400';
+        img.onerror = () => img.src = 'https://via.placeholder.com/400?text=No+Image';
+
+        // Add to Cart Button
+        const addBtn = document.getElementById('add-btn');
+        addBtn.onclick = () => {
+            console.log("Add to cart clicked for", product.name);
+            if (typeof window.addToCart === 'function') {
+                window.addToCart(
+                    product._id || product.id,
+                    product.name,
+                    price,
+                    product.pharmacy_id || product.pharmacyId || 'demo_pharmacy'
+                );
+            } else {
+                alert("Cart system is initializing, please check console or refresh.");
+                console.error("window.addToCart is not defined");
+            }
+        };
+
+        // Similar Products (Demo)
+        loadSimilarProducts();
+
+        // Show content
+        loader.style.display = 'none';
+        content.style.display = 'block';
+
+    } catch (err) {
+        console.error(err);
+        loader.innerHTML = '<div style="text-align:center;"><h3>Failed to load product details</h3><p>' + err.message + '</p><a href="index.html">Go Back</a></div>';
     }
-  });
-})();
+});
+
+async function loadSimilarProducts() {
+    const container = document.getElementById('similar-container');
+    if (!container) return;
+
+    // Just fetch some random products as "Similar"
+    try {
+        const res = await fetch(`${window.MediFind.API_URL}/products?limit=4`);
+        const data = await res.json();
+        const products = data.results || [];
+
+        container.innerHTML = products.map(p => `
+            <div class="medicine-card" onclick="window.location.href='product.html?id=${p._id}'" style="cursor:pointer;">
+                <div style="height:100px; display:flex; align-items:center; justify-content:center; margin-bottom:10px;">
+                     <img src="${p.image_url || 'https://via.placeholder.com/150'}" style="max-height:100%; max-width:100%; object-fit:contain;">
+                </div>
+                <h4>${p.name}</h4>
+                <p style="font-size:12px; color:#666;">${p.manufacturer || 'Generic'}</p>
+                <div class="price">₹${(p.unit_price || p.price || 0).toFixed(2)}</div>
+            </div>
+        `).join('');
+
+    } catch (e) {
+        container.innerHTML = '';
+    }
+}
