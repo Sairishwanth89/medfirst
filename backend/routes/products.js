@@ -65,7 +65,7 @@ router.get('/search', async (req, res) => {
           { description: { $regex: searchQuery, $options: 'i' } },
           { manufacturer: { $regex: searchQuery, $options: 'i' } }
         ]
-      }).limit(50);
+      }).limit(500); // Increased from 50
     }
 
     // --- 3. Demand Sensing Logic (Notifications) ---
@@ -114,7 +114,7 @@ router.get('/search', async (req, res) => {
 // Get all products
 router.get('/', async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 50;
+    const limit = parseInt(req.query.limit) || 500; // Default limit 50 -> 500
     const products = await Product.find().limit(limit);
     res.json({ success: true, count: products.length, results: products });
   } catch (error) {

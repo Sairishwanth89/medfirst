@@ -8,7 +8,7 @@ const router = express.Router();
 router.post('/signup', async (req, res) => {
   try {
     const { username, email, password, full_name, phone, role } = req.body;
-    
+
     // Check if user exists
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
@@ -17,22 +17,22 @@ router.post('/signup', async (req, res) => {
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 8);
-    
+
     const user = await User.create({
-      username, 
-      email, 
-      password: hashedPassword, 
-      full_name, 
-      phone, 
+      username,
+      email,
+      password: hashedPassword,
+      full_name,
+      phone,
       role: role || 'patient'
     });
 
     // Generate Token
     const token = jwt.sign(
-        { id: user._id, role: user.role }, 
-        process.env.SECRET_KEY || 'your_jwt_secret_key_2024'
+      { id: user._id, role: user.role },
+      process.env.SECRET_KEY || 'your_jwt_secret_key_2024'
     );
-    
+
     const userResp = user.toObject();
     delete userResp.password;
 
@@ -47,7 +47,7 @@ router.post('/signup', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    
+
     // 1. Find user
     const user = await User.findOne({ username });
     if (!user) {
@@ -62,10 +62,10 @@ router.post('/login', async (req, res) => {
 
     // 3. Generate Token
     const token = jwt.sign(
-        { id: user._id, role: user.role }, 
-        process.env.SECRET_KEY || 'your_jwt_secret_key_2024'
+      { id: user._id, role: user.role },
+      process.env.SECRET_KEY || 'your_jwt_secret_key_2024'
     );
-    
+
     const userResp = user.toObject();
     delete userResp.password;
 

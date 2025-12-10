@@ -7,6 +7,7 @@ const User = require('./models/User');
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
+const bcrypt = require('bcryptjs');
 
 async function seedDatabase() {
   try {
@@ -22,10 +23,11 @@ async function seedDatabase() {
     console.log('✓ Data cleared\n');
 
     // Create Pharmacy Owner
+    const hashedPassword = await bcrypt.hash('password123', 8);
     const owner = await User.create({
       username: 'PharmOwner',
       email: 'owner@pharmacy.com',
-      password: 'password123', // In real app, hash this
+      password: hashedPassword,
       role: 'pharmacy',
       phone: '1234567890'
     });
